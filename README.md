@@ -1,5 +1,5 @@
 # useStateHandler
-Class based hook. bring the value of class based definitions ( including this.setState ) and hooks 
+Class based hook. bring the value of hooks and class based definitions together ( including this.setState ) 
 
 ## How to use
 
