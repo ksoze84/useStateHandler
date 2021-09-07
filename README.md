@@ -11,9 +11,15 @@ Forget about useCallback, useReducer and custom hooks.
 ## How to use
 
 
+1.- Create a handler class C_Handler that extends StateHandler < StateType >. Add all setState operations you want to this class.
+
+2.- Use the hook useStateHandler( C_Handler, initial_Value ). This hook returns [ state, C_Handler ]
+
+3.- enjoy!
+
+## Example
 ```jsx
 
-...
 import { StateHandler, useStateHandler } from './handler';
 
 class CertH extends StateHandler<ICert> {
