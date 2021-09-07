@@ -22,5 +22,4 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
   return [ st, handler ]
 }
 
-
 export { StateHandler, useStateHandler }
