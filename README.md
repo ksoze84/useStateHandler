@@ -1,6 +1,13 @@
 # useStateHandler
 Class based hook. bring the value of hooks and class based definitions together ( including this.setState ) 
 
+
+Maintain a unique instance of the handler class on memory.
+
+Heavy functions are not instantiated in every render. Minimal code. 
+
+Forget about useCallback, useReducer and custom hooks.
+
 ## How to use
 
 
