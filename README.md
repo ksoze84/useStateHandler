@@ -34,7 +34,7 @@ class CertH extends StateHandler<ICert> {
 }
 
 const ModalCert: FunctionComponent<ModalProps> 
-  = ({ modalProps, toggler}) => {
+  = ({ modalProp }) => {
 
     const [ cert, handler ] = useStateHandler( CertH, {} );
 
