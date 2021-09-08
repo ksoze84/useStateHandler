@@ -1,6 +1,6 @@
 {
   "name": "use-state-handler",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Class based state handler",
   "main": "lib/main.js",
   "module": "lib/main.esm.js",
