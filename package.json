@@ -1,6 +1,6 @@
 {
   "name": "use-state-handler",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Class based state handler",
   "main": "lib/main.js",
   "module": "lib/main.esm.js",
@@ -37,7 +37,8 @@
   },
   "keywords": [
     "class",
-    "hook"
+    "hook",
+    "state"
   ],
   "bugs": {
     "url": "https://github.com/ksoze84/useStateHandler/issues"
