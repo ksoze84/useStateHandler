@@ -4,9 +4,9 @@ Class based hook. bring the value of hooks and class based definitions together 
 
 Maintain a unique instance of the handler class on memory.
 
-Heavy functions are not instantiated in every render. Minimal code. 
+Heavy functions are not instantiated in every render. 
 
-Forget about useCallback, useReducer and custom hooks.
+Minimal code!. Forget about useCallback, useReducer and custom hooks.
 
 ## How to use
 
@@ -33,35 +33,33 @@ class CertHandler extends StateHandler<ICert> {
   } 
 }
 
-const ModalCert: FunctionComponent<ModalProps> 
-  = ({ modalProp }) => {
+const ModalCert: FunctionComponent<ModalProps> = ({ modalProp }) => {
 
-    const [ cert, handler ] = useStateHandler( CertHandler, {} );
+  const [ cert, handler ] = useStateHandler( CertHandler, {} );
 
-    return (
-      <div className="box">
+  return (
+    <div className="box">
 
-        <input
-          type='text'
-          placeholder="ej: Jhon"
-          value={cert.name}
-          name="name"
-          onChange={ handler.setInput }
-        />
-        
-        <input
-          type='text'
-          placeholder="ej: Jhon@mail.com"
-          value={cert.mail}
-          name="mail"
-          onChange={ handler.setInput }
-        />
+      <input
+        type='text'
+        placeholder="ej: Jhon"
+        value={cert.name}
+        name="name"
+        onChange={ handler.setInput }
+      />
+      
+      <input
+        type='text'
+        placeholder="ej: Jhon@mail.com"
+        value={cert.mail}
+        name="mail"
+        onChange={ handler.setInput }
+      />
 
-      </div> 
-    );
+    </div> 
+  );
 
   };
-
 
 
 ```
