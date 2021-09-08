@@ -41,21 +41,21 @@ const ModalCert: FunctionComponent<ModalProps>
     return (
       <div className="box">
 
-          <input
-            type='text'
-            placeholder="ej: Jhon"
-            value={cert.name}
-            name="name"
-            onChange={ handler.setInput }
-          />
-          
-          <input
-            type='text'
-            placeholder="ej: Jhon@mail.com"
-            value={cert.mail}
-            name="mail"
-            onChange={ handler.setInput )  }
-          />
+        <input
+          type='text'
+          placeholder="ej: Jhon"
+          value={cert.name}
+          name="name"
+          onChange={ handler.setInput }
+        />
+        
+        <input
+          type='text'
+          placeholder="ej: Jhon@mail.com"
+          value={cert.mail}
+          name="mail"
+          onChange={ handler.setInput }
+        />
 
       </div> 
     );
