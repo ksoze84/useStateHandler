@@ -22,7 +22,7 @@ Forget about useCallback, useReducer and custom hooks.
 
 import { StateHandler, useStateHandler } from 'use-state-handler';
 
-class CertH extends StateHandler<ICert> {
+class CertHandler extends StateHandler<ICert> {
 
   public setValue = ( name: string, val : any ) => {
     this.setState (  {...this.state, ...{ [name] : val } }  )
@@ -36,7 +36,7 @@ class CertH extends StateHandler<ICert> {
 const ModalCert: FunctionComponent<ModalProps> 
   = ({ modalProp }) => {
 
-    const [ cert, handler ] = useStateHandler( CertH, {} );
+    const [ cert, handler ] = useStateHandler( CertHandler, {} );
 
     return (
       <div className="box">
@@ -65,4 +65,4 @@ const ModalCert: FunctionComponent<ModalProps>
 
 
 ```
-Here handler is the instance of CertH 
+Here handler is the instance of CertHandler 
