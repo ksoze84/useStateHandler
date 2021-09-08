@@ -20,14 +20,17 @@ Forget about useCallback, useReducer and custom hooks.
 ## Example
 ```jsx
 
-import { StateHandler, useStateHandler } from './handler';
+import { StateHandler, useStateHandler } from 'use-state-handler';
 
 class CertH extends StateHandler<ICert> {
 
-  public setValue( name: string, val : any ){
+  public setValue = ( name: string, val : any ) => {
     this.setState (  {...this.state, ...{ [name] : val } }  )
   }
 
+  public setInput = ( e : ChangeEvent<HTMLInputElement> ) => {   
+    this.setValue ( e.target.name, e.target.value )
+  } 
 }
 
 const ModalCert: FunctionComponent<ModalProps> 
@@ -36,30 +39,25 @@ const ModalCert: FunctionComponent<ModalProps>
     const [ cert, handler ] = useStateHandler( CertH, {} );
 
     return (
-        <div className="box">
-          <h3 className="title">New Cert</h3>
+      <div className="box">
 
-          <form autoComplete="off">
+          <input
+            type='text'
+            placeholder="ej: Jhon"
+            value={cert.name}
+            name="name"
+            onChange={ handler.setInput }
+          />
+          
+          <input
+            type='text'
+            placeholder="ej: Jhon@mail.com"
+            value={cert.mail}
+            name="mail"
+            onChange={ handler.setInput )  }
+          />
 
-            <Input
-              type='text'
-              placeholder="ej: Jhon"
-              value={cert.name}
-              name="name"
-              onChange={ e => handler.setValue( e.target.name, e.target.value )  }
-            />
-            
-            <Input
-              type='text'
-              placeholder="ej: Jhon@mail.com"
-              value={cert.mail}
-              name="mail"
-              onChange={ e => handler.setValue( e.target.name, e.target.value )  }
-            />
-
-          </form>
-
-        </div> 
+      </div> 
     );
 
   };
