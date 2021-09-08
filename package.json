@@ -38,7 +38,8 @@
   "keywords": [
     "class",
     "hook",
-    "state"
+    "state",
+    "react"
   ],
   "bugs": {
     "url": "https://github.com/ksoze84/useStateHandler/issues"
