@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React from "react"
 
 class StateHandler<T> {
   
@@ -14,12 +14,26 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T) : [T | undefined, H] 
 
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T) : [T, H]  {
-  const [st, setSt] = useState<T>( initial_value );
-  const [handler, ] = useState<H>( () => new handlerClass( setSt ) )  
+  const [st, setSt] = React.useState<T>( initial_value );
+  const [handler, ] = React.useState<H>( () => new handlerClass( setSt ) )  
 
   handler.state = st;
 
   return [ st, handler ]
 }
+
+/* 
+
+ idea for maintain constructor initial state definition .
+
+function initialize<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value : T, sts : React.Dispatch<React.SetStateAction<T>> ) : H {
+  const newInstance = new handlerClass( sts )
+
+  if (initial_value === undefined && newInstance.state !== undefined )
+    newInstance.setState(newInstance.state)
+
+  return newInstance
+}
+ */
 
 export { StateHandler, useStateHandler }
