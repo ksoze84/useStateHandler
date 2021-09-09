@@ -11,11 +11,17 @@ Minimal code!. Forget about useCallback, useReducer and custom hooks.
 ## How to use
 
 
-1.- Create a handler class C_Handler that extends StateHandler < StateType >. Add all setState operations you want to this class.
+1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all setState operations you want to this class.
 
-2.- Use the hook useStateHandler( C_Handler, initial_Value ). This hook returns [ state, C_Handler ]
+2. Use the hook useStateHandler( C_Handler, initial_Value ). This hook returns [ state, C_Handler ]
 
-3.- enjoy!
+3. enjoy!
+
+## Rules
+
+* Don't initialize state in constructor.
+* Never set Handler.state directly, is read Only!
+
 
 ## Example
 ```jsx
@@ -59,14 +65,10 @@ const ModalCert: FunctionComponent<ModalProps> = ({ modalProp }) => {
     </div> 
   );
 
-  };
+}
 
 
 ```
 Here handler is the instance of CertHandler 
 
 
-## Rules
-
-* Don't initialize state in constructor.
-* Never set Handler.state, is read Only!
