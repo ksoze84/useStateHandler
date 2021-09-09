@@ -64,3 +64,9 @@ const ModalCert: FunctionComponent<ModalProps> = ({ modalProp }) => {
 
 ```
 Here handler is the instance of CertHandler 
+
+
+## Rules
+
+* Don't initialize state in constructor.
+* Never set Handler.state, is read Only!
