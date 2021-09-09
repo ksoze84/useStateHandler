@@ -1,5 +1,5 @@
 # useStateHandler
-Class based hook. bring the value of hooks and class based definitions together ( including this.setState ) 
+Object based hook. bring the value of hooks and class based definitions together ( including this.setState ) 
 
 
 Maintain a unique instance of the handler class on memory.
