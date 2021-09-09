@@ -1,7 +1,7 @@
 {
   "name": "use-state-handler",
-  "version": "1.0.17",
-  "description": "Class based state handler",
+  "version": "1.0.18",
+  "description": "Object based state handler",
   "main": "lib/main.js",
   "module": "lib/main.esm.js",
   "author": "Felipe Rodriguez Herrera",
