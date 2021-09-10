@@ -36,4 +36,21 @@ function initialize<H extends StateHandler<T>, T>( handlerClass : new ( s : Reac
 }
  */
 
+
+/* 
+idea 2 for maintain constructor initial state definition
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( ) => H, initial_value : T) : [T, H] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( ) => H, initial_value? : T) : [T | undefined, H] 
+
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( ) => H, initial_value: T) : [T, H]  {
+  const [handler, ] = React.useState<H>( () => new handlerClass( ) ) 
+  const [st, setSt] = React.useState<T>( () => initial_value === undefined && handler.state !== undefined ? handler.state : initial_value );
+ 
+  handler.state = st;
+  handler.setState = setSt;
+
+  return [ st, handler ]
+}
+ */
+
 export { StateHandler, useStateHandler }
