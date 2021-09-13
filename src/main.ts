@@ -1,20 +1,20 @@
 import React from "react"
 
-class StateHandler<T> {
+abstract class StateHandler<T> {
   
   public state? : T;
-  public setState : React.Dispatch<React.SetStateAction<T>>
+  public setState : React.Dispatch<React.SetStateAction<T>>;
 
   constructor( sts : React.Dispatch<React.SetStateAction<T>> ) { this.setState = sts }
 
 }
 
 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value : T) : [T, H] 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T) : [T | undefined, H] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value : T | (() => T)) : [T, H] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T | (() => T)) : [T | undefined, H] 
 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T) : [T, H]  {
-  const [st, setSt] = React.useState<T>( initial_value );
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H]  {
+  const [st, setSt] = React.useState<T>( handlerClass.prototype.state || initial_value );
   const [handler, ] = React.useState<H>( () => new handlerClass( setSt ) )  
 
   handler.state = st;
@@ -22,35 +22,6 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
   return [ st, handler ]
 }
 
-/* 
 
- idea for maintain constructor initial state definition .
-
-function initialize<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value : T, sts : React.Dispatch<React.SetStateAction<T>> ) : H {
-  const newInstance = new handlerClass( sts )
-
-  if (initial_value === undefined && newInstance.state !== undefined )
-    newInstance.setState(newInstance.state)
-
-  return newInstance
-}
- */
-
-
-/* 
-idea 2 for maintain constructor initial state definition
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( ) => H, initial_value : T) : [T, H] 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( ) => H, initial_value? : T) : [T | undefined, H] 
-
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( ) => H, initial_value: T) : [T, H]  {
-  const [handler, ] = React.useState<H>( () => new handlerClass( ) ) 
-  const [st, setSt] = React.useState<T>( () => initial_value === undefined && handler.state !== undefined ? handler.state : initial_value );
- 
-  handler.state = st;
-  handler.setState = setSt;
-
-  return [ st, handler ]
-}
- */
 
 export { StateHandler, useStateHandler }
