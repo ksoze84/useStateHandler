@@ -14,7 +14,7 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T | (() => T)) : [T | undefined, H] 
 
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H]  {
-  const [st, setSt] = React.useState<T>( handlerClass.prototype.state || initial_value );
+  const [st, setSt] = React.useState<T>( initial_value );
   const [handler, ] = React.useState<H>( () => new handlerClass( setSt ) )  
 
   handler.state = st;
