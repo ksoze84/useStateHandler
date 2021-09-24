@@ -1,14 +1,13 @@
 {
   "name": "use-state-handler",
-  "version": "1.0.21",
+  "version": "2.0.0",
   "description": "Object based state handler",
   "main": "lib/main.js",
   "module": "lib/main.esm.js",
   "author": "Felipe Rodriguez Herrera",
   "license": "MIT",
   "types": "lib/main.d.ts",
-  "dependencies": {
-  },
+  "dependencies": {},
   "scripts": {
     "build": "rollup -c"
   },
@@ -20,12 +19,12 @@
     "lib": "lib"
   },
   "devDependencies": {
+    "@types/node": "^15.3.0",
     "@types/react": "^17.0.20",
     "react": "^17.0.2",
-    "typescript": "^4.2.4",
-    "@types/node": "^15.3.0",
     "rollup": "^2.48.0",
-    "rollup-plugin-typescript2": "^0.30.0"
+    "rollup-plugin-typescript2": "^0.30.0",
+    "typescript": "^4.2.4"
   },
   "peerDependencies": {
     "react": "^17.0.2"
