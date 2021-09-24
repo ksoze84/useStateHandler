@@ -10,11 +10,12 @@ abstract class StateHandler<T> {
 
 }
 
+type HandlerSetter<T> = React.Dispatch<React.SetStateAction<T>> 
 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value : T | (() => T)) : [T, H] 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T | (() => T)) : [T, H] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : HandlerSetter<T> ) => H, initial_value : T | (() => T)) : [T, H] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : HandlerSetter<T> ) => H, initial_value? : T | (() => T)) : [T, H] 
 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H]  {
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : HandlerSetter<T> ) => H, initial_value: T | (() => T)) : [T, H]  {
   const [st, setSt]     = React.useState<T>( initial_value );  
   const [handler, setHandler ]     = React.useState<H>( );
   
@@ -32,4 +33,4 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
 }
 
 
-export { StateHandler, useStateHandler }
+export { StateHandler, useStateHandler, HandlerSetter }
