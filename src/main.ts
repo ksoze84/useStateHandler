@@ -2,7 +2,7 @@ import React from "react"
 
 abstract class StateHandler<T> {
   
-  abstract state    : T;
+  abstract state?   : T;
   setState          : React.Dispatch<React.SetStateAction<T>>; 
   instanceCreated?  : () => void;
 
@@ -10,10 +10,18 @@ abstract class StateHandler<T> {
 
 }
 
+abstract class StateHandlerState<T> extends StateHandler<T> {
+  
+  abstract state    : T;
+
+}
+
+
+
 type HandlerSetter<T> = React.Dispatch<React.SetStateAction<T>> 
 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : HandlerSetter<T> ) => H, initial_value : T | (() => T)) : [T, H] 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : HandlerSetter<T> ) => H, initial_value? : T | (() => T)) : [T, H] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : HandlerSetter<T> ) => H, initial_value : T | (() => T)) : [ H extends StateHandlerState<T> ? T : T | undefined, H] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : HandlerSetter<T> ) => H, initial_value? : T | (() => T)) : [ H extends StateHandlerState<T> ? T : T | undefined, H] 
 
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : HandlerSetter<T> ) => H, initial_value: T | (() => T)) : [T, H]  {
   const [st, setSt]                 = React.useState<T>( initial_value );  
