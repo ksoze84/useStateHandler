@@ -33,12 +33,14 @@ constructor( s : HandlerSetter ) {
 ```
 ## instanceCreated() function
 
-if exist is called just after object is created
+if exist is called just after object is created and initial_value is setted
 
 
-## State initialization precedence
+## State initialization
 
- MyHandler.state > initial_value > Constructor() > instanceCreated()
+You can set a state in class definition, pass a initial_value to the hook, defining in the constructor or in the instanceCreated method. 
+ 
+Handler state should not have multiple inititializations, but if happens this will be the result: instanceCreated() > Constructor()  > MyHandler.state > initial_value 
 
 ## Example
 
