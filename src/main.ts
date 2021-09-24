@@ -4,7 +4,6 @@ abstract class StateHandler<T> {
   
   state?            : T;
   setState          : React.Dispatch<React.SetStateAction<T>>; 
-  instanceCreated?  : () => void
 
   constructor( sts : React.Dispatch<React.SetStateAction<T>> ) { this.setState = sts }
 
@@ -15,25 +14,13 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T | (() => T)) : [T | undefined, H] 
 
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H]  {
-  let inid              = true ;
-  const [st, setSt]     = React.useState<T>( );  
-  const [handler, ]     = React.useState<H>( () => init(  new handlerClass( setSt as React.Dispatch<React.SetStateAction<T>> ), initial_value, inid = false ) );
+  const [st, setSt]     = React.useState<T>( initial_value );  
+  const [handler, ]     = React.useState<H>( () => new handlerClass( setSt ) );
   
 
-  if(inid) 
-    handler.state = st;
+  handler.state = st;
 
-  return [ st as T, handler ];
+  return [ st, handler ];
 }
-
-const init : <H extends StateHandler<T>, T>( handlerObject : H, initial_value : T | (() => T), h : any ) => H  = ( handlerObject, initial_value ) => {
-  if (initial_value)
-    handlerObject.state = initial_value instanceof Function ? initial_value() : initial_value;
-
-  handlerObject.instanceCreated && handlerObject.instanceCreated()
-
-  return handlerObject;
-}
-
 
 export { StateHandler, useStateHandler }
