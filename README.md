@@ -8,97 +8,19 @@ Heavy functions are not instantiated in every render.
 
 Minimal code!. Forget about useCallback, useReducer and custom hooks.
 
-## How to use
-
-
-1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all setState operations you want to this class.
-
-2. Use the hook useStateHandler( C_Handler, initial_value ). This hook returns [ state, C_Handler ]
-
-3. enjoy!
-
-## Rules
-
-* Never set Handler.state directly, is read Only!
-
-
-## Constructor
-
-```jsx
-constructor( s : HandlerSetter ) {
-  super(s);
-  //your code
-}
+## Installation
 
 ```
-## instanceCreated() function
+yarn add use-state-handler
+```
 
-if exist is called just after object is created and initial_value is setted
-
-
-## State initialization
-
-You can set a state in class definition, pass a initial_value to the hook, defining in the constructor or in the instanceCreated method. 
- 
-Handler state should not have multiple inititializations, but if happens this will be the result: instanceCreated() > Constructor()  > MyHandler.state > initial_value 
 
 ## Example
-
-CertHandler.ts
-```jsx
-import { StateHandler, useStateHandler } from 'use-state-handler';
-
-class CertHandler extends StateHandler<ICert> {
-
-  private descA = " Description A ...";
-  private descB = " Description B ...";
-
-  static initState = { name : "", mail : "" }
-
-  instanceCreated = ( ) => 
-    this.load( "" )
-
-
-  public load = ( name : string ) =>
-    fetch( "url", name )
-      .then( data => setState( data ) )
-  
-
-  public setValue = ( name: string, val : any ) => {
-    this.setState (  {...this.state, ...{ [name] : val } }  )
-  }
-
-  public loadControlOptions = ( id : string ) => 
-    fetch( "url_details" )
-      .then( data => setState( {...this.state, ...{ details : data } } )
-
-  public setInput = ( e : ChangeEvent<HTMLInputElement> ) => {   
-    this.setValue ( e.target.name, e.target.value )
-  } 
-
-  public setType = ( e : ChangeEvent<HTMLSelectElement> ) => {   
-    let type = e.target.value;
-    let desc : string
-    
-    if(type === "A")
-      desc = state.name + this.descA;
-    else
-      desc = this.descB;
-
-    setState({...this.state, ...{ type : type, description : desc } });
-  } 
-
-
-  save = () =>
-    post( "save_url", this.state )
-
-}
-
-```
 
 ModalCert.tsx:
 ```jsx
 import { CertHandler } from './CertHandler';
+import { useStateHandler } from 'use-state-handler';
 
 const ModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 
@@ -151,11 +73,61 @@ const ModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 
 ```
 
+CertHandler.ts
+```jsx
+import { StateHandler } from 'use-state-handler';
+
+class CertHandler extends StateHandler<ICert> {
+
+  private descA = " Description A ...";
+  private descB = " Description B ...";
+
+  static initState = { name : "", mail : "" }
+
+  instanceCreated = ( ) => 
+    this.load( "" )
 
 
+  public load = ( name : string ) =>
+    fetch( "url", name )
+      .then( data => setState( data ) )
+  
+
+  public setValue = ( name: string, val : any ) => {
+    this.setState (  {...this.state, ...{ [name] : val } }  )
+  }
+
+  public loadControlOptions = ( id : string ) => 
+    fetch( "url_details" )
+      .then( data => setState( {...this.state, ...{ details : data } } )
+
+  public setInput = ( e : ChangeEvent<HTMLInputElement> ) => {   
+    this.setValue ( e.target.name, e.target.value )
+  } 
+
+  public setType = ( e : ChangeEvent<HTMLSelectElement> ) => {   
+    let type = e.target.value;
+    let desc : string
+    
+    if(type === "A")
+      desc = state.name + this.descA;
+    else
+      desc = this.descB;
+
+    setState({...this.state, ...{ type : type, description : desc } });
+  } 
+
+
+  save = () =>
+    post( "save_url", this.state )
+
+}
+
+```
 NewModalCert.tsx:
 ```jsx
 import { CertHandler } from './CertHandler';
+import { useStateHandler } from 'use-state-handler';
 
 const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 
@@ -206,3 +178,38 @@ const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 }
 
 ```
+
+
+## How to use
+
+
+1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all setState operations you want to this class.
+
+2. Use the hook useStateHandler( C_Handler, initial_value ). This hook returns [ state, C_Handler ]
+
+3. enjoy!
+
+## Rules
+
+* Never set Handler.state directly, is read Only!
+
+
+## Constructor
+
+```jsx
+constructor( s : HandlerSetter ) {
+  super(s);
+  //your code
+}
+
+```
+## instanceCreated() function
+
+if exist is called just after object is created and initial_value is setted
+
+
+## State initialization
+
+You can set a state in class definition, pass a initial_value to the hook, defining in the constructor or in the instanceCreated method. 
+ 
+Handler state should not have multiple inititializations, but if happens this will be the result: instanceCreated() > Constructor()  > MyHandler.state > initial_value 
