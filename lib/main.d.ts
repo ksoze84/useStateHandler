@@ -1,6 +1,6 @@
 import React from "react";
 declare abstract class StateHandler<T> {
-    abstract state?: T;
+    state?: T;
     setState: React.Dispatch<React.SetStateAction<T>>;
     instanceCreated?: () => void;
     constructor(sts: HandlerSetter<T>);

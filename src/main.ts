@@ -2,7 +2,7 @@ import React from "react"
 
 abstract class StateHandler<T> {
   
-  abstract state?   : T;
+  state?            : T;
   setState          : React.Dispatch<React.SetStateAction<T>>; 
   instanceCreated?  : () => void;
 
