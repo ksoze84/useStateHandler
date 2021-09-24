@@ -3,7 +3,7 @@ import React from "react"
 abstract class StateHandler<T> {
   
   state?            : T;
-  setState          : React.Dispatch<React.SetStateAction<T>> = () => undefined; 
+  setState          : React.Dispatch<React.SetStateAction<T>>; 
   instanceCreated?  : () => void
 
   constructor( sts : React.Dispatch<React.SetStateAction<T>> ) { this.setState = sts }
@@ -11,10 +11,10 @@ abstract class StateHandler<T> {
 }
 
 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value : T | (() => T)) : [T, H] 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T | (() => T)) : [T | undefined, H] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value : T | (() => T)) : [T, H extends StateHandler<T>] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T | (() => T)) : [T | undefined, H extends StateHandler<T>] 
 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H]  {
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H extends StateHandler<T>]  {
   const [inid, setInid] = React.useState(false);
   const [st, setSt]     = React.useState<T>( );  
   const [handler, ]     = React.useState<H>( () => init(  new handlerClass( setSt as React.Dispatch<React.SetStateAction<T>> ), initial_value, setInid ) );
