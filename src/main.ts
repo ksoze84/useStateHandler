@@ -12,7 +12,7 @@ abstract class StateHandler<T> {
 
 
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value : T | (() => T)) : [T, H] 
-function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T | (() => T)) : [T | undefined, H] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T | (() => T)) : [T, H] 
 
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H]  {
   const [st, setSt]     = React.useState<T>( initial_value );  
@@ -31,25 +31,5 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
   return [ st, handler ];
 }
 
-function useHandlerObject<H extends StateHandler<T>, T>( handlerGenerator : ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H] 
-function useHandlerObject<H extends StateHandler<T>, T>( handlerGenerator : ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value?: T | (() => T)) : [T, H] 
 
-function useHandlerObject<H extends StateHandler<T>, T>( handlerGenerator : ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H]  {
-  const [st, setSt]                 = React.useState<T>( initial_value );  
-  const [handler, setHandler ]      = React.useState<H>();
-  
-  if (!handler){
-    let new_handler = handlerGenerator(setSt);
-    setHandler( new_handler );
-    setSt( new_handler.state || st  );
-    new_handler.instanceCreated && new_handler.instanceCreated();
-    return [ ( new_handler.state || st ), new_handler ]
-  }
-  else
-    handler.state = st;
-
-  return [ st, handler ];
-}
-
-
-export { StateHandler, useStateHandler, useHandlerObject }
+export { StateHandler, useStateHandler }
