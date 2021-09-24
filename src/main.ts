@@ -2,11 +2,11 @@ import React from "react"
 
 abstract class StateHandler<T> {
   
-  state?            : T;
+  abstract state    : T;
   setState          : React.Dispatch<React.SetStateAction<T>>; 
   instanceCreated?  : () => void;
 
-  constructor( sts : React.Dispatch<React.SetStateAction<T>> ) { this.setState = sts }
+  constructor( sts : HandlerSetter<T> ) { this.setState = sts }
 
 }
 
