@@ -23,4 +23,21 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
   return [ st, handler ];
 }
 
-export { StateHandler, useStateHandler }
+function useHandlerObject<H extends StateHandler<T>, T>( handlerGenerator : ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H]  {
+  const [st, setSt]     = React.useState<T>( initial_value );  
+  const [handler, setHandler ]     = React.useState<H>();
+  
+  if (!handler ){
+    let new_handler = handlerGenerator(setSt) 
+    setHandler( new_handler )
+    setSt( new_handler.state || st  )
+    return [ ( new_handler.state || st ), new_handler ]
+  }
+  else
+    handler.state = st;
+
+  return [ st, handler ];
+}
+
+
+export { StateHandler, useStateHandler, useHandlerObject }
