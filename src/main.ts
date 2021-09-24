@@ -20,7 +20,7 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
   const [handler, setHandler ]      = React.useState<H>( );
   
   if (!handler){
-    let new_handler = new handlerClass( setSt );
+    const new_handler = new handlerClass( setSt );
     setHandler( new_handler );
     if (new_handler.state) 
       setSt(  new_handler.state );
