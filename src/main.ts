@@ -15,9 +15,9 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T | (() => T)) : [T | undefined, H] 
 
 function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H]  {
-  const [inid, setInid] = React.useState(false);
+  let inid              = true ;
   const [st, setSt]     = React.useState<T>( );  
-  const [handler, ]     = React.useState<H>( () => init(  new handlerClass( setSt as React.Dispatch<React.SetStateAction<T>> ), initial_value, setInid ) );
+  const [handler, ]     = React.useState<H>( () => init(  new handlerClass( setSt as React.Dispatch<React.SetStateAction<T>> ), initial_value, inid = false ) );
   
 
   if(inid) 
@@ -26,12 +26,11 @@ function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s :
   return [ st as T, handler ];
 }
 
-const init : <H extends StateHandler<T>, T>( handlerObject : H, initial_value : T | (() => T), setInid : (v:boolean) => void ) => H  = ( handlerObject, initial_value, setInid ) => {
+const init : <H extends StateHandler<T>, T>( handlerObject : H, initial_value : T | (() => T), h : any ) => H  = ( handlerObject, initial_value ) => {
   if (initial_value)
     handlerObject.state = initial_value instanceof Function ? initial_value() : initial_value;
 
   handlerObject.instanceCreated && handlerObject.instanceCreated()
-  setInid(true);
 
   return handlerObject;
 }
