@@ -11,13 +11,13 @@ abstract class StateHandler<T> {
 }
 
 
-function useStateHandler<T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => StateHandler<T>, initial_value : T | (() => T)) : [T, StateHandler<T>] 
-function useStateHandler<T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => StateHandler<T>, initial_value? : T | (() => T)) : [T | undefined, StateHandler<T>] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value : T | (() => T)) : [T, H] 
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value? : T | (() => T)) : [T | undefined, H] 
 
-function useStateHandler<T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => StateHandler<T>, initial_value: T | (() => T)) : [T, StateHandler<T>]  {
+function useStateHandler<H extends StateHandler<T>, T>( handlerClass : new ( s : React.Dispatch<React.SetStateAction<T>> ) => H, initial_value: T | (() => T)) : [T, H]  {
   const [inid, setInid] = React.useState(false);
   const [st, setSt]     = React.useState<T>( );  
-  const [handler, ]     = React.useState<StateHandler<T>>( () => init(  new handlerClass( setSt as React.Dispatch<React.SetStateAction<T>> ), initial_value, setInid ) );
+  const [handler, ]     = React.useState<H>( () => init(  new handlerClass( setSt as React.Dispatch<React.SetStateAction<T>> ), initial_value, setInid ) );
   
 
   if(inid) 
@@ -26,7 +26,7 @@ function useStateHandler<T>( handlerClass : new ( s : React.Dispatch<React.SetSt
   return [ st as T, handler ];
 }
 
-const init : <T>( handlerObject : StateHandler<T>, initial_value : T | (() => T), setInid : (v:boolean) => void ) => StateHandler<T>  = ( handlerObject, initial_value, setInid ) => {
+const init : <H extends StateHandler<T>, T>( handlerObject : H, initial_value : T | (() => T), setInid : (v:boolean) => void ) => H  = ( handlerObject, initial_value, setInid ) => {
   if (initial_value)
     handlerObject.state = initial_value instanceof Function ? initial_value() : initial_value;
 
