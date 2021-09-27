@@ -129,6 +129,7 @@ NewModalCert.tsx:
 import { CertHandler } from './CertHandler';
 import { useStateHandler } from 'use-state-handler';
 
+//same as before but different initialization
 const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 
   const [ cert, handler ] = useStateHandler( CertHandler, CertHandler.initState );
@@ -183,7 +184,7 @@ const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 ## How to use
 
 
-1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all setState operations you want to this class.
+1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all setState methods you want to this class.
 
 2. Use the hook useStateHandler( C_Handler, initial_value ). This hook returns [ state, C_Handler ]
 
