@@ -26,7 +26,7 @@ abstract class StateHandler<T> {
         this.setState(this.state);
       else
         this.state = s
-      this.instanceCreated?.(); 
+      this.instanceCreated && this.instanceCreated(); 
       this.init = false;
     }
     else
