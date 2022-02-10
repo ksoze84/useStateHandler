@@ -39,15 +39,6 @@
     "type": "git",
     "url": "git+https://github.com/ksoze84/useStateHandler.git"
   },
-  "eslintConfig": {
-    "extends": "eslint:recommended",
-    "rules": {
-        
-      "react-hooks/exhaustive-deps": ["warn", {
-        "additionalHooks": "useStateHandler"
-      }]
-    }
-  },
   "keywords": [
     "object",
     "class",
