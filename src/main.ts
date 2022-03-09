@@ -29,7 +29,8 @@ function initHandler<T, H extends StateHandler<T>>( hs : HandlerSetter<T>, handl
   }
   
     handler['instanceCreated'] && handler['instanceCreated']()
-  return handler
+  
+    return handler
 }
 
 
