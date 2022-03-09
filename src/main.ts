@@ -12,7 +12,7 @@ abstract class StateHandler<T> {
     if(hs[0]) 
       this.state = hs[0];
     else if( this.state )
-      hs[0]=(this.state);
+      hs[0]=this.state;
     
     this.instanceCreated && this.instanceCreated()
   }
@@ -37,7 +37,7 @@ function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s :
 
   handler.state = hs[0];
 
-  return [ handler.state, handler ];
+  return [ hs[0], handler ];
 }
 
 export { StateHandler, useStateHandler, HandlerSetter }
