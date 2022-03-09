@@ -5,34 +5,18 @@ abstract class StateHandler<T> {
   public    state?              : T;
   readonly  setState            : React.Dispatch<React.SetStateAction<T>>; 
   protected instanceCreated?    : () => void;
-  private   init                : boolean;
 
-  constructor( sts : HandlerSetter<T>, state? : T ) { 
-    this.setState = sts; 
-    this.init = true;
+  constructor( hs : HandlerSetter<T>) { 
+    this.setState = hs[1]; 
 
-    if(state) 
-      this.state = state;
+    if(hs[0]) 
+      this.state = hs[0];
     else if( this.state )
-      this.setState(this.state);
+      hs[0]=(this.state);
     
-    
+    this.instanceCreated && this.instanceCreated()
   }
 
-  private putState( s : T ){
-
-    if (this.init){ 
-      if(this.state)
-        this.setState(this.state);
-      else
-        this.state = s
-      this.instanceCreated && this.instanceCreated(); 
-      this.init = false;
-    }
-    else
-      this.state = s
-
-  }
 
 }
 
@@ -42,16 +26,16 @@ abstract class StateHandlerState<T> extends StateHandler<T> {
 
 
 
-type HandlerSetter<T> = React.Dispatch<React.SetStateAction<T>> 
+type HandlerSetter<T> =  [T, React.Dispatch<React.SetStateAction<T>>];
 
 function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value : T | (() => T)) : [T, H]
 function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value? : T | (() => T)) : [ H extends StateHandlerState<T> ? T : T | undefined, H]
 
 function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value: T | (() => T)) : [T | undefined, H]  {
-  const [st, setSt]                 = React.useState<T>( initial_value );    
-  const [handler, ]                 = React.useState<H>( () => new handlerClass( setSt, st ) );
+  const hs                          = React.useState<T>( initial_value );    
+  const [handler, ]                 = React.useState<H>( () => new handlerClass( hs ) );
 
-  handler['putState'](st);
+  handler.state = hs[0];
 
   return [ handler.state, handler ];
 }
