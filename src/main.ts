@@ -9,12 +9,9 @@ abstract class StateHandler<T> {
   constructor( hs : HandlerSetter<T>) { 
     this.setState = hs[1]; 
 
-    if(hs[0]) 
-      this.state = hs[0];
-    else if( this.state )
-      hs[0]=this.state;
     
-    this.instanceCreated && this.instanceCreated()
+    
+    
   }
 
 
@@ -25,6 +22,18 @@ abstract class StateHandlerState<T> extends StateHandler<T> {
 }
 
 
+function initHandler<T, H extends StateHandler<T>>( hs : HandlerSetter<T>, handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H ) {
+  const handler = new handlerClass( hs );
+
+  if(hs[0]) 
+    handler.state = hs[0];
+  else if( handler.state )
+    hs[0]=handler.state;
+  
+    handler['instanceCreated'] && handler['instanceCreated']()
+  return handler
+}
+
 
 type HandlerSetter<T> =  [T, React.Dispatch<React.SetStateAction<T>>];
 
@@ -33,7 +42,7 @@ function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s :
 
 function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value: T | (() => T)) : [T | undefined, H]  {
   const hs                          = React.useState<T>( initial_value );    
-  const [handler, ]                 = React.useState<H>( () => new handlerClass( hs ) );
+  const [handler, ]                 = React.useState<H>( () => initHandler( hs, handlerClass )  );
 
   handler.state = hs[0];
 
