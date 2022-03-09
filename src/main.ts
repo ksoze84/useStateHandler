@@ -23,8 +23,10 @@ function initHandler<T, H extends StateHandler<T>>( hs : HandlerSetter<T>, handl
 
   if(hs[0]) 
     handler.state = hs[0];
-  else if( handler.state )
+  else if( handler.state ){
+    hs[1]( handler.state );
     hs[0]=handler.state;
+  }
   
     handler['instanceCreated'] && handler['instanceCreated']()
   return handler
@@ -37,8 +39,7 @@ function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s :
 function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value? : T | (() => T)) : [ H extends StateHandlerState<T> ? T : T | undefined, H]
 
 function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value: T | (() => T)) : [T | undefined, H]  {
-  const [st, setSt]                          = React.useState<T>( initial_value );    
-  const hs:HandlerSetter<T> = [ st, setSt ]; 
+  const hs                        = React.useState<T>( initial_value );    
   const [handler, ]                 = React.useState<H>( () => initHandler( hs, handlerClass )  );
 
   handler.state = hs[0];
