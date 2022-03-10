@@ -18,6 +18,7 @@ abstract class StateHandlerState<T> extends StateHandler<T> {
 
 
 function initHandler<T, H extends StateHandler<T>>( hs : HandlerSetter<T>, handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H ) {
+  
   const handler = new handlerClass( hs );
 
   if(hs[0]) 
@@ -27,9 +28,10 @@ function initHandler<T, H extends StateHandler<T>>( hs : HandlerSetter<T>, handl
     hs[0]=handler.state;
   }
   
-    handler['instanceCreated'] && handler['instanceCreated']()
+  handler['instanceCreated'] && handler['instanceCreated']()
+
+  return handler
   
-    return handler
 }
 
 type HandlerSetter<T> =  [T, React.Dispatch<React.SetStateAction<T>>];
