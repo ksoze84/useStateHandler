@@ -10,7 +10,6 @@ abstract class StateHandler<T> {
     this.setState = hs[1]; 
   }
 
-
 }
 
 abstract class StateHandlerState<T> extends StateHandler<T> {
@@ -33,7 +32,6 @@ function initHandler<T, H extends StateHandler<T>>( hs : HandlerSetter<T>, handl
     return handler
 }
 
-
 type HandlerSetter<T> =  [T, React.Dispatch<React.SetStateAction<T>>];
 
 function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value : T | (() => T)) : [T, H]
@@ -49,3 +47,4 @@ function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s :
 }
 
 export { StateHandler, useStateHandler, HandlerSetter }
+
