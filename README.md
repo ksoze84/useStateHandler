@@ -77,7 +77,7 @@ CertHandler.ts
 ```jsx
 import { StateHandler } from 'use-state-handler';
 
-class CertHandler extends StateHandler<ICert> {
+export class CertHandler extends StateHandler<ICert> {
 
   private descA = " Description A ...";
   private descB = " Description B ...";
