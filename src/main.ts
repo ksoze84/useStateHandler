@@ -36,10 +36,10 @@ function initHandler<T, H extends StateHandler<T>>( hs : HandlerSetter<T>, handl
 
 type HandlerSetter<T> =  [T, React.Dispatch<React.SetStateAction<T>>];
 
-function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value : T | (() => T)) : readonly [T, H]
-function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value? : T | (() => T)) : readonly [ H extends StateHandlerState<T> ? T : T | undefined, H]
+function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value : T | (() => T)) : Readonly<[T, Readonly<H>]>
+function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value? : T | (() => T)) : Readonly<[ H extends StateHandlerState<T> ? T : T | undefined, Readonly<H>]>
 
-function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value: T | (() => T)) : readonly [T | undefined, H]  {
+function useStateHandler<T, H extends StateHandler<T>>( handlerClass : new ( s : HandlerSetter<T>, state? : T ) => H, initial_value: T | (() => T)) : Readonly<[T | undefined, Readonly<H>]>  {
   const hs                          = React.useState<T>( initial_value );    
   const [handler, ]                 = React.useState<H>( () => initHandler( hs, handlerClass )  );
 
