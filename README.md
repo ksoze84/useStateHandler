@@ -199,13 +199,13 @@ const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 
 * Never set Handler.state directly, is read Only!
 * You may save another data in the class, but beware of components state updates signaling and mounting logics if this data mutates over time.
-* Prefer defining an instanceCreated() method on the handle over the constructor to execute initial code.  
+* Prefer defining an instanceCreated() method on the handler over the constructor to execute initial code.  
 
 ## Constructor
 
 You may define a constructor in your class. But is not necessary
 
-**Prefer defining an instanceCreated() mehtod on the handle over the constructor to execute initial code.** 
+**Prefer defining an instanceCreated() method on the handler over the constructor to execute initial code.** 
 
 Constructor code of the class and its inherited instances constructors are not part of the mounting/unmounting logic of react. Hook state listeners may or may not be ready when the code executes. 
 

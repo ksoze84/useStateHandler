@@ -1,6 +1,6 @@
 {
   "name": "use-state-handler",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Object based state handler",
   "main": "lib/main.js",
   "module": "lib/main.esm.js",
@@ -39,9 +39,11 @@
   "keywords": [
     "object",
     "class",
-    "hook",
     "state",
-    "react"
+    "manager",
+    "hook",
+    "react",
+    "shared"
   ],
   "bugs": {
     "url": "https://github.com/ksoze84/useStateHandler/issues"
