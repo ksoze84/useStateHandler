@@ -1,17 +1,23 @@
 # useStateHandler
-Object based hook. bring the value of hooks and class based definitions together ( including this.setState ) 
 
+Simple object based hook and state manager for React.  
 
-Maintain a unique instance of the handler class on memory.
+KeyPoints: 
+* Maintain a unique instance of the handler class on memory accross your application. 
+* Share the state and the methods to update it between components.
+* You write the class, the hook manages the rest.
+* Heavy functions are not instantiated in every render. Forget about using useCallback, useReducer and custom hooks.
+* Helps to maintain logic from render separate.
 
-Heavy functions are not instantiated in every render. 
+This is not a hook meant to replace useState. But rather, useStateHandler must be used alongside another hooks, especially useEffect.
 
-Minimal code!. Forget about useCallback, useReducer and custom hooks.
+Minimal and simple code. Small footprint and low impact in React's cycles. 
+
 
 ## Installation
 
 ```
-yarn add use-state-handler
+npm install use-state-handler --save
 ```
 
 
@@ -82,7 +88,7 @@ export class CertHandler extends StateHandler<ICert> {
   private descA = " Description A ...";
   private descB = " Description B ...";
 
-  static initState = { name : "", mail : "" }
+  state = { name : "", mail : "" };
 
   instanceCreated = ( ) => 
     this.load( "" )
@@ -132,7 +138,7 @@ import { useStateHandler } from 'use-state-handler';
 //same as before but different initialization
 const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 
-  const [ cert, handler ] = useStateHandler( CertHandler, CertHandler.initState );
+  const [ cert, handler ] = useStateHandler( CertHandler );
 
 
   return (
@@ -184,7 +190,7 @@ const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 ## How to use
 
 
-1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all setState methods you want to this class.
+1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all state update methods you want to this class.
 
 2. Use the hook useStateHandler( C_Handler, initial_value ). This hook returns [ state, C_Handler ]
 
@@ -193,24 +199,34 @@ const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 ## Rules
 
 * Never set Handler.state directly, is read Only!
-
+* You may save another data in the class, but beware of components state updates signaling and mounting logics if this data mutates over time.
+* Prefer defining an instanceCreated() method on the handle over the constructor to execute initial code.  
 
 ## Constructor
 
+You may define a constructor in your class. But is not neccesary
+
+**Prefer defining an instanceCreated() mehtod on the handle over the constructor to execute initial code.** 
+
+Constructor code of the class and its inherited instances constructors are not part of the mounting/unmounting logic of react. Hook state listeners may or may not be ready when the code executes. 
+
 ```jsx
-constructor( s : HandlerSetter ) {
-  super(s);
+constructor(  ) {
+  super();
   //your code
 }
 
 ```
 ## instanceCreated() function
 
-if exist is called just after object is created and initial_value is setted
+Optional Callback function that may be implemented and is called only once when an instance is created. This Method is Called by the useStateHandler hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
+
+This method has NOT the same behavior as mount callback a component in React. The only way this method is called again by the hook is destroying the instance first with destroyInstance().
 
 
 ## State initialization
 
-You can set a state in class definition, pass a initial_value to the hook, defining in the constructor or in the instanceCreated method. 
- 
-Handler state should not have multiple inititializations, but if happens this will be the result: instanceCreated() > Constructor()  > MyHandler.state > initial_value 
+You can set a state in class definition or pass a initial_value.  
+Handler state should not have multiple inititializations, but if happens this will be the result: MyHandler.state > initial_value.
+
+Code you wrote in instanceCreated() method will update the initial state.
