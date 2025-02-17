@@ -9,7 +9,7 @@ KeyPoints:
 * Heavy functions are not instantiated in every render. Forget about using useCallback, useReducer and custom hooks.
 * Helps to maintain logic from render separate.
 
-This is not a hook meant to replace useState. But rather, useStateHandler must be used alongside another hooks, especially useEffect.
+This is not a hook meant to replace useState. But rather, useStateHandler frequently is used alongside another hooks, especially useEffect.
 
 Minimal and simple code. Small footprint and low impact in React's cycles. 
 
@@ -19,6 +19,13 @@ Minimal and simple code. Small footprint and low impact in React's cycles.
 ```
 npm install use-state-handler --save
 ```
+
+## How to use
+
+
+1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all state update methods you want to this class.
+1. Use the hook useStateHandler( C_Handler, initial_value ). This hook returns [ state, C_Handler ]
+1. enjoy!
 
 
 ## Example
@@ -187,14 +194,6 @@ const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 ```
 
 
-## How to use
-
-
-1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all state update methods you want to this class.
-
-2. Use the hook useStateHandler( C_Handler, initial_value ). This hook returns [ state, C_Handler ]
-
-3. enjoy!
 
 ## Rules
 
@@ -204,7 +203,7 @@ const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 
 ## Constructor
 
-You may define a constructor in your class. But is not neccesary
+You may define a constructor in your class. But is not necessary
 
 **Prefer defining an instanceCreated() mehtod on the handle over the constructor to execute initial code.** 
 
@@ -219,7 +218,7 @@ constructor(  ) {
 ```
 ## instanceCreated() function
 
-Optional Callback function that may be implemented and is called only once when an instance is created. This Method is Called by the useStateHandler hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
+Optional Callback function that may be implemented and is called only once when an instance is created. If exists in the instance, this method is called by the useStateHandler hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
 
 This method has NOT the same behavior as mount callback a component in React. The only way this method is called again by the hook is destroying the instance first with destroyInstance().
 
@@ -230,3 +229,11 @@ You can set a state in class definition or pass a initial_value.
 Handler state should not have multiple inititializations, but if happens this will be the result: MyHandler.state > initial_value.
 
 Code you wrote in instanceCreated() method will update the initial state.
+
+
+## Destroing the instance
+
+You may destroy the instance when needed using the **destroyInstance()** method. This method must be called **on the unmount callback** of the component using it.  
+This first checks if there are active state hook listeners active. If there isn't, the instance reference is deleted, and the **instanceDeleted()** method is called if exists.
+
+If you implement **instanceDeleted()**, remember that it is not the equivalent of an unmount component callback.

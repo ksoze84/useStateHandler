@@ -129,5 +129,5 @@ function unmountLogic<T>( dispatcher: React.Dispatch<React.SetStateAction<T>>, h
     listeners.set( handler,  listeners.get( handler )?.filter( l => l !== dispatcher) ?? [] );
 }
 
-export { StateHandler, useStateHandler }
+export { StateHandler, useStateHandler };
 
