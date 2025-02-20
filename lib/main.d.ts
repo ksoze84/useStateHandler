@@ -1,10 +1,10 @@
 import React from "react";
 /**
- * Abstract class representing a state handler. This class should be extended to create a state handler.
- * The extended Class must be passed to the useStateHandler hook to work with React.
- * The hook useStateHandler will maintain only one instance of the class per application at a time.
- * The instance of this Class will be only one in the application, and will be shared between all components that use the [useStateHandler Hook, Class] pair saving its state.
- * Mounting and unmounting components will not necesarily affect the instance nor its state.
+ * Abstract class representing a state handler. This class should be extended to create a state handler.  
+ * The extended Class must be passed to the useStateHandler hook to work with React.  
+ * The hook useStateHandler will maintain only one instance of the class per application at a time.  
+ * The instance of this Class will be only one in the application, and will be shared between all components that use the [useStateHandler Hook, Class] pair saving its state.  
+ * Mounting and unmounting components will not necesarily affect the instance nor its state.  
  * When is created a new instance of the class, the instanceCreated() method is called.
  *
  * @template T - The type of the state.

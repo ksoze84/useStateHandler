@@ -9,7 +9,7 @@ KeyPoints:
 * Heavy functions are not instantiated in every render. Forget about using useCallback, useReducer and custom hooks.
 * Helps to maintain logic from render separate.
 
-This is not a hook meant to replace useState. But rather, useStateHandler frequently is used alongside another hooks, especially useEffect.
+This is not a hook meant to replace useState, but rather to be used alongside another hooks, like useState, but mostly with useEffect to control related components mount/unmount.
 
 Minimal and simple code. Small footprint and low impact in React's cycles. 
 

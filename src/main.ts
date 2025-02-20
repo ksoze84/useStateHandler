@@ -40,7 +40,7 @@ const listeners = new WeakMap<StateHandler<any>, React.Dispatch<React.SetStateAc
 abstract class StateHandler<T> {
 
   /**
-   * The current state. Do not set this property directly. Use the setState method instead.
+   * The current state. Do not set this property directly. Use the setState method instead.  
    */
   public state?: T;
 
@@ -61,7 +61,7 @@ abstract class StateHandler<T> {
   protected instanceDeleted?: () => void;
 
   /**
-   * Sets the state and notifies all listeners.
+   * Sets the state and notifies all listeners.  
    * 
    * @param value - The new state or a function that returns the new state based on the previous state.
    */
