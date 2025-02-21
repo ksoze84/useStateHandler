@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-import React, { useEffect } from "react"
+import React, { useEffect } from "react";
 
 const storage = new Map<string, StateHandler<any>>();
 const listeners = new WeakMap<StateHandler<any>, React.Dispatch<React.SetStateAction<any>>[]>();
@@ -73,7 +73,6 @@ abstract class StateHandler<T> {
   /**
    * Destroys the instance if there are no active listeners.  
    * Use this method to delete the instance **on the unmount callback** of the component using it.  
-   * 
    * Logs a warn if there are active listeners and the instance is not deleted.
    */
   public destroyInstance = () => {
@@ -103,7 +102,16 @@ abstract class StateHandlerState<T> extends StateHandler<T> {
   abstract state    : T;
 }
 
-function initHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( handlerClass : new ( s?:T ) => H ) : H {
+  /**
+   * Gets the instance of the handler class.  
+   * This is not a hook. It will not trigger re-renders when used in components.
+   * 
+   * @template T - The type of the state.
+   * @template H - The type of the StateHandler class.
+   * @param handlerClass - The constructor of the StateHandler class.
+   * @returns The instance of the StateHandler class.
+   */
+function getHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( handlerClass : new ( s?:T ) => H ) : H {
   if ( !storage.has( handlerClass.name ) ) storage.set( handlerClass.name, new handlerClass( ) );
   return storage.get( handlerClass.name ) as H;
 }
@@ -127,16 +135,16 @@ function useStateHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( h
  * @returns A readonly tuple containing the current state and the handler instance.
  */
 function useStateHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( handlerClass : new ( s?:T ) => H, initial_value: T | (() => T)) : Readonly<[T | undefined, H]>  {
-  const [, setHs]         = React.useState<T>( initial_value );    
-  const handler           = initHandler<T, H>( handlerClass );
+  const handler                     = getHandler<T, H>( handlerClass );
+  const [state, setState]           = React.useState<T>( (initial_value instanceof Function ? initial_value() : initial_value) ?? handler.state as T );    
+  
+  useEffect( () => mountLogic( setState, handlerClass ), [] );
 
-  useEffect( () => mountLogic( setHs, handlerClass ), [] );
-
-  return [ handler.state, handler ];
+  return [ state, handler ];
 }
 
 function mountLogic<T, H extends (StateHandler<T>|StateHandlerState<T>)>( dispatcher: React.Dispatch<React.SetStateAction<T>>, handlerClass : new ( s?:T ) => H) {
-  const handler = initHandler<T, H>( handlerClass );
+  const handler = getHandler<T, H>( handlerClass );
 
   if( !listeners.has( handler ) ){
     listeners.set( handler, [ dispatcher ] );
@@ -153,5 +161,4 @@ function unmountLogic<T>( dispatcher: React.Dispatch<React.SetStateAction<T>>, h
     listeners.set( handler,  listeners.get( handler )?.filter( l => l !== dispatcher) ?? [] );
 }
 
-export { StateHandler, useStateHandler };
-
+export { StateHandler, useStateHandler, getHandler };
