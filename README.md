@@ -176,7 +176,7 @@ function Tables() {
 }
 
 ```
-**Note that the useStateHandler hook will trigger re-render for any part of the state changed.**
+**Note that the useStateHandler hook will trigger re-render for any part of the state changed.**  
 **Merging mode is only for non-undefined objects, and this software doesn't check anything before merging, so its on you guarantee an initial and always state object.**
 
 ## instanceCreated() function
