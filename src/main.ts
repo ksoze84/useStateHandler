@@ -48,7 +48,7 @@ abstract class StateHandler<T> {
    * @protected
    * @readonly
    */
-  protected readonly _handlerConfig = { merge : false, destroyOnUnmount : false };
+  protected readonly _handlerConfig : {merge? : boolean, destroyOnUnmount? : boolean} = { merge : false, destroyOnUnmount : false };
 
   /**
    * The current state. Do not set this property directly. Use the setState method instead.  
@@ -78,7 +78,7 @@ abstract class StateHandler<T> {
    */
   public readonly setState = (value: T | Partial<T> | ((prevState: T) => T |Partial<T>)) => {
     const newState = value instanceof Function ? value(this.state as T) : value;
-    this.state = (this._handlerConfig.merge && typeof this.state === 'object' && !Array.isArray(this.state) && this.state !== null ? { ...this.state, ...newState } : newState) as T;
+    this.state = (this._handlerConfig.merge ? { ...this.state, ...newState } : newState) as T;
     storage.get(this.constructor.name)?.listeners?.forEach( l => l(this.state) );
   };
 
@@ -91,9 +91,6 @@ abstract class StateHandler<T> {
     if ((storage.get(this.constructor.name)?.listeners?.length ?? 0) === 0) {
       storage.delete(this.constructor.name);
       this.instanceDeleted?.(); 
-    } 
-    else {
-      console.warn(`There are ${this.constructor.name} listeners active (unmounted components). Instance will not be deleted`);
     }
   };
 

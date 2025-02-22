@@ -112,17 +112,16 @@ export function App() {
 
 ## Rules
 
-* Never set Handler.state directly, is read Only!
-* You may save another data in the class, but beware of components state updates signaling and mounting logics if this data mutates over time.
-* Prefer defining an instanceCreated() method on the handler over the constructor to execute initial code.  
-
-
+* Never set Handler.state directly; it is read only!
+* You may save another data in the class, but beware of component state updates signaling and mounting logics if this data mutates over time.
+* Do not manipulate state directly in the constructor.
+* The class name is the key for this software to work as expected. Never use the same name for state handler classes even if they are declared in different scopes.
 
 ## Handler Configuration
 
 You may configure the handler by setting the optional property _handlerConfig in your handler. It has two boolean options:
 * merge : The state is overwritten by default using setState. Change this to true to merge.
-* destroyOnUnmount : Tries to delete the instance in each unmount of each component.
+* destroyOnUnmount : Tries to delete the instance in each unmount of each component. Is successfully deleted if there are no active listeners (other components using it).
 
 ```tsx
 
@@ -137,16 +136,14 @@ Overwrite the state is the default mode on hanlder.setState, but you can configu
 
 ```tsx
 
-type countState = {chairs:number, tables:number, rooms:number}
-
-class CountHandler extends StateHandler<countState> {
+class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
   state = {
     chairs: 0,
     tables : 0,
     rooms : 10
   }
 
-  _handlerConfig = { merge : true, destroyOnUnmount : false }
+  _handlerConfig = { merge : true }
 
   addChairs = () => this.setState( c =>( { chairs: c.chairs + 1 }) );
   subtractChairs = () => this.setState( c => ({chairs : c.chairs - 1}) );
@@ -154,15 +151,33 @@ class CountHandler extends StateHandler<countState> {
   addTables = () => this.setState( t => ({tables: t.tables + 1}) );
   subtractTables = () => this.setState( t => ({tables: t.tables - 1}) );
 
-  resetSome = () => this.setState( { chairs: 0, tables : 0 } );
+  resetAll = () => this.setState( { chairs: 0, tables : 0 } );
 }
 
+function Chairs() {
+  const [{chairs},{addChairs, subtractChairs}] = useStateHandler(CountHandler);
+
+  return <>
+    <span>Chairs: {chairs}</span>
+    <button onClick={addChairs}>+</button>
+    <button onClick={subtractChairs}>-</button>
+  </> 
+}
+
+function Tables() {
+  const [{tables},{addTables, subtractTables}] = useStateHandler(CountHandler);
+
+  return <>
+    <span>Tables: {tables}</span>
+
+    <button onClick={addTables}>+</button>
+    <button onClick={subtractTables}>-</button>
+  </>
+}
 
 ```
 **Note that the useStateHandler hook will trigger re-render for any part of the state changed.**
-
-
-
+**Merging mode is only for non-undefined objects, and this software doesn't check anything before merging, so its on you guarantee an initial and always state object.**
 
 ## instanceCreated() function
 

@@ -18,8 +18,8 @@ declare abstract class StateHandler<T> {
      * @readonly
      */
     protected readonly _handlerConfig: {
-        merge: boolean;
-        destroyOnUnmount: boolean;
+        merge?: boolean;
+        destroyOnUnmount?: boolean;
     };
     /**
      * The current state. Do not set this property directly. Use the setState method instead.
