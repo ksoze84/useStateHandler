@@ -22,10 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
+
 import React, { useEffect } from "react";
 
-const storage = new Map<string, StateHandler<any>>();
-const listeners = new WeakMap<StateHandler<any>, React.Dispatch<React.SetStateAction<any>>[]>();
+const storage = new Map<string, {handler : StateHandler<any>, listeners? : React.Dispatch<React.SetStateAction<any>>[]}>();
 
 /**
  * Abstract class representing a state handler. This class should be extended to create a state handler.  
@@ -38,6 +38,17 @@ const listeners = new WeakMap<StateHandler<any>, React.Dispatch<React.SetStateAc
  * @template T - The type of the state.
  */
 abstract class StateHandler<T> {
+
+
+  /**
+   * Configuration object for the state handler.
+   * 
+   * @property {boolean} merge - Indicates whether to merge the state.
+   * @property {boolean} destroyOnUnmount - Indicates whether to destroy the state on unmount.
+   * @protected
+   * @readonly
+   */
+  protected readonly _handlerConfig = { merge : false, destroyOnUnmount : false };
 
   /**
    * The current state. Do not set this property directly. Use the setState method instead.  
@@ -65,9 +76,10 @@ abstract class StateHandler<T> {
    * 
    * @param value - The new state or a function that returns the new state based on the previous state.
    */
-  public readonly setState: React.Dispatch<React.SetStateAction<T>> = (value: T | ((prevState: T) => T)) => {
-    this.state = value instanceof Function ? value(this.state as T) : value;
-    listeners.get(this)?.forEach(l => l(value));
+  public readonly setState = (value: T | Partial<T> | ((prevState: T) => T |Partial<T>)) => {
+    const newState = value instanceof Function ? value(this.state as T) : value;
+    this.state = (this._handlerConfig.merge && typeof this.state === 'object' && !Array.isArray(this.state) && this.state !== null ? { ...this.state, ...newState } : newState) as T;
+    storage.get(this.constructor.name)?.listeners?.forEach( l => l(this.state) );
   };
 
   /**
@@ -76,7 +88,7 @@ abstract class StateHandler<T> {
    * Logs a warn if there are active listeners and the instance is not deleted.
    */
   public destroyInstance = () => {
-    if ((listeners.get(this)?.length ?? 0) === 0) {
+    if ((storage.get(this.constructor.name)?.listeners?.length ?? 0) === 0) {
       storage.delete(this.constructor.name);
       this.instanceDeleted?.(); 
     } 
@@ -112,8 +124,8 @@ abstract class StateHandlerState<T> extends StateHandler<T> {
    * @returns The instance of the StateHandler class.
    */
 function getHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( handlerClass : new ( s?:T ) => H ) : H {
-  if ( !storage.has( handlerClass.name ) ) storage.set( handlerClass.name, new handlerClass( ) );
-  return storage.get( handlerClass.name ) as H;
+  if ( !storage.has( handlerClass.name ) ) storage.set( handlerClass.name, {handler :new handlerClass( )} );
+  return storage.get( handlerClass.name )?.handler as H;
 }
 
 function useStateHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( handlerClass : new ( s?:T ) => H, initial_value : T | (() => T)) : Readonly<[T, H]>
@@ -146,19 +158,23 @@ function useStateHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( h
 function mountLogic<T, H extends (StateHandler<T>|StateHandlerState<T>)>( dispatcher: React.Dispatch<React.SetStateAction<T>>, handlerClass : new ( s?:T ) => H) {
   const handler = getHandler<T, H>( handlerClass );
 
-  if( !listeners.has( handler ) ){
-    listeners.set( handler, [ dispatcher ] );
+  if( !storage.get( handler.constructor.name )?.listeners ){
+    storage.get( handler.constructor.name )!.listeners = [ dispatcher ] ;
     handler["instanceCreated"]?.();
   }
   else
-    listeners.get( handler)?.push( dispatcher );
+    storage.get( handler.constructor.name )?.listeners!.push( dispatcher );
 
   return () => unmountLogic( dispatcher, handler );
 }
 
 function unmountLogic<T>( dispatcher: React.Dispatch<React.SetStateAction<T>>, handler: StateHandler<T>) {
-  if ( ( listeners.get( handler )?.length ?? 0 ) > 0 ) 
-    listeners.set( handler,  listeners.get( handler )?.filter( l => l !== dispatcher) ?? [] );
+  if ( ( storage.get( handler.constructor.name )?.listeners?.length ?? 0 ) > 0 ) {
+    storage.get( handler.constructor.name )!.listeners = storage.get( handler.constructor.name )?.listeners?.filter( l => l !== dispatcher) ?? [] ;
+      if( handler["_handlerConfig"].destroyOnUnmount )
+        handler.destroyInstance();
+  }
+
 }
 
 export { StateHandler, useStateHandler, getHandler };

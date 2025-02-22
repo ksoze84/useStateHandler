@@ -1,4 +1,3 @@
-import React from "react";
 /**
  * Abstract class representing a state handler. This class should be extended to create a state handler.  
  * The extended Class must be passed to the useStateHandler hook to work with React.  
@@ -10,6 +9,18 @@ import React from "react";
  * @template T - The type of the state.
  */
 declare abstract class StateHandler<T> {
+    /**
+     * Configuration object for the state handler.
+     *
+     * @property {boolean} merge - Indicates whether to merge the state.
+     * @property {boolean} destroyOnUnmount - Indicates whether to destroy the state on unmount.
+     * @protected
+     * @readonly
+     */
+    protected readonly _handlerConfig: {
+        merge: boolean;
+        destroyOnUnmount: boolean;
+    };
     /**
      * The current state. Do not set this property directly. Use the setState method instead.
      */
@@ -32,11 +43,11 @@ declare abstract class StateHandler<T> {
      *
      * @param value - The new state or a function that returns the new state based on the previous state.
      */
-    readonly setState: React.Dispatch<React.SetStateAction<T>>;
+    readonly setState: (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => void;
     /**
      * Destroys the instance if there are no active listeners.  
      * Use this method to delete the instance **on the unmount callback** of the component using it.  
-     * Logs a warn if there are active listeners and the instance is not deleted.  
+     * Logs a warn if there are active listeners and the instance is not deleted.
      */
     destroyInstance: () => void;
     /**
