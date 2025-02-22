@@ -186,6 +186,23 @@ Optional Callback function that may be implemented and is called only once when 
 This method has NOT the same behavior as mount callback a component in React. The only way this method is called again by the hook is destroying the instance first with destroyInstance().
 
 
+
+```tsx
+
+class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
+  state = {
+    chairs: 0,
+    tables : 0,
+    rooms : 0
+  }
+
+  instanceCreated = () => {
+    fetch('https://myapi.com/counters').then( r => r.json() ).then( r => this.setState(r) );
+  }
+}
+
+```
+
 ## Destroying the instance
 
 You may destroy the instance when needed using the **destroyInstance()** method. This method must be called **on the unmount callback** of the component using it.  
