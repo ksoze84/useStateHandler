@@ -3,7 +3,7 @@
 Simple object based hook and state manager for React.  
 
 KeyPoints: 
-* Keep the React paradigm; only mind this hook is persistent. If you are familiar with class components, this will too.
+* Keep the React paradigm; only mind this hook is persistent. If you are familiar with class components, you will be familiar with this as well.
 * Maintain a unique instance of the handler class on memory accross your application. 
 * Share the state and the methods to update it between components.
 * You write the class, the hook manages the rest.
@@ -117,6 +117,18 @@ export function App() {
 * Do not manipulate state directly in the constructor.
 * The class name is the key for this software to work as expected. Never use the same name for state handler classes even if they are declared in different scopes.
 
+
+## Reutilizing your class
+
+Classes are made for reutilization, making new instances from these. But in this case, the instance is managed by the hook, and it maintains only one instance per class name.  
+One way to use your class again with this hook, without duplicating code, is to extend it:
+
+```tsx
+
+class CountHandlerTwo extends CountHandler {};
+
+```
+
 ## Handler Configuration
 
 You may configure the handler by setting the optional property _handlerConfig in your handler. It has two boolean options:
@@ -176,8 +188,8 @@ function Tables() {
 }
 
 ```
-**Note that the useStateHandler hook will trigger re-render for any part of the state changed.**  
-**Merging mode is only for non-undefined objects, and this software doesn't check anything before merging, so its on you guarantee an initial and always state object.**
+**Note that the useStateHandler hook will trigger re-render for any part of the state changed. In the example above, Tables component will re-render if the chairs value is changed.**  
+**Merging mode is only for non-undefined objects, and there is no check of any kind for this before doing it, so its on you to guarantee an initial and always state object.**
 
 ## instanceCreated() function
 
