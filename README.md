@@ -181,7 +181,6 @@ function Tables() {
 
   return <>
     <span>Tables: {tables}</span>
-
     <button onClick={addTables}>+</button>
     <button onClick={subtractTables}>-</button>
   </>
@@ -235,7 +234,6 @@ function Tables() {
 
   return <>
     <span>Tables: {tables}</span>
-
     <button onClick={addTables}>+</button>
     <button onClick={subtractTables}>-</button>
   </>
