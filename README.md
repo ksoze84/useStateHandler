@@ -65,7 +65,7 @@ Prefer setting the state in the class definition for easier readability.
 Code you wrote in instanceCreated() method will update the initial state.
 
 
-## Get the instance.
+## Get the instance
 
 You can get the instance of your Handler using getHandler() utility method, mainly for two things:
 * To use handler actions without triggering re-renders in "control-only" components
