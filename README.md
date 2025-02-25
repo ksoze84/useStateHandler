@@ -188,8 +188,60 @@ function Tables() {
 }
 
 ```
-**Note that the useStateHandler hook will trigger re-render for any part of the state changed. In the example above, Tables component will re-render if the chairs value is changed.**  
+**Note that the useStateHandler hook will trigger re-render for any part of the state changed. In the example above, Tables component will re-render if the chairs value is changed. This behavior can be optimized with usePartialHandler hook.**  
 **Merging mode is only for non-undefined objects, and there is no check of any kind for this before doing it, so its on you to guarantee an initial and always state object.**
+
+## usePartialHandler to update only when a determined subset of state properties changes
+
+When a non-undefined object with many properties is used as state, the useStateHandler hook will trigger re-render for any part of the state changed, even if only the component is using only one of the properties. This can be optimized using the provided usePartialHandler hook. It is better fitted if the merge state option is on true.
+
+The usage of this hook is identical to useStateHandler, but the second argument must be a non-empty array of strings with the state property names. An initial state can be defined in the third argument. 
+
+**Use only if you have performance problems; this hook avoids some unnecessary re-renders but introduces a dependency array of comparisons. Always prefer useStateHandler first.**
+
+Updating the previous example:
+
+```tsx
+class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
+  state = {
+    chairs: 0,
+    tables : 0,
+    rooms : 10
+  }
+
+  _handlerConfig = { merge : true }
+
+  addChairs = () => this.setState( c =>( { chairs: c.chairs + 1 }) );
+  subtractChairs = () => this.setState( c => ({chairs : c.chairs - 1}) );
+
+  addTables = () => this.setState( t => ({tables: t.tables + 1}) );
+  subtractTables = () => this.setState( t => ({tables: t.tables - 1}) );
+
+  resetAll = () => this.setState( { chairs: 0, tables : 0 } );
+}
+
+function Chairs() {
+  const [{chairs}, {addTables, subtractTables}] = usePartialHandler(CountHandler, ["chairs"]);
+
+  return <>
+    <span>Chairs: {chairs}</span>
+    <button onClick={addChairs}>+</button>
+    <button onClick={subtractChairs}>-</button>
+  </> 
+}
+
+function Tables() {
+  const [{tables}, {addTables, subtractTables}] = usePartialHandler(CountHandler, ["tables"]);
+
+  return <>
+    <span>Tables: {tables}</span>
+
+    <button onClick={addTables}>+</button>
+    <button onClick={subtractTables}>-</button>
+  </>
+}
+
+```
 
 ## instanceCreated() function
 
