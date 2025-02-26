@@ -269,9 +269,9 @@ export abstract class MyApiHandler extends StateHandler<ApiData>{
   abstract readonly loadUri : string; // making loadUri property obligatory to define in inherited class
   readonly saveUri? : string = undefined;
 
-  public load = ( params? : Record<string, any> ) => {
+  public load = ( params? : string ) => {
     this.setState({isLoading: true});
-    return fetch( this.loadUri, { body : JSON.stringify( params) } )
+    return fetch( this.loadUri + ( params ?? '' ) )
             .then( r => r.json() )
             .then( resp => this.setState({ data : resp?.data ?? [] , isLoading: false}) )
   }
@@ -294,8 +294,8 @@ export abstract class MyApiHandler extends StateHandler<ApiData>{
   public save = ( params? : Record<string, any> ) => {
     this.setState({isLoading: true});
     return fetch( this.saveUri ?? '', { method: 'POST', body : JSON.stringify(params)} )
-      .then( r => r.json() )
-      .then( () => this.setState({ isLoading: false }) )
+            .then( r => r.json() )
+            .then( () => this.setState({ isLoading: false }) )
   }
 
 }
