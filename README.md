@@ -118,17 +118,6 @@ export function App() {
 * The class name is the key for this software to work as expected. Never use the same name for state handler classes even if they are declared in different scopes.
 
 
-## Reutilizing your class
-
-Classes are made for reutilization, making new instances from these. But in this case, the instance is managed by the hook, and it maintains only one instance per class name.  
-One way to use your class again with this hook, without duplicating code, is to extend it:
-
-```tsx
-
-class CountHandlerTwo extends CountHandler {};
-
-```
-
 ## Handler Configuration
 
 You may configure the handler by setting the optional property _handlerConfig in your handler. It has two boolean options:
@@ -237,6 +226,96 @@ function Tables() {
     <button onClick={addTables}>+</button>
     <button onClick={subtractTables}>-</button>
   </>
+}
+
+```
+
+
+## Working with Classes
+
+### Reutilizing classes
+
+Classes are made for reutilization, making new instances from these. But in this case, the instance is managed by the hook, and it maintains only one instance per class name.  
+One way to use your class again with this hook, without duplicating code, is to extend it:
+
+```ts
+
+class CountHandlerTwo extends CountHandler {};
+
+```
+
+### Inheritance
+
+You can write common functionality in a generic class and extend this class, adding the specifics. In this case, extending a parent generic class with StateHandler lets you encapsulate common functionality:
+
+
+MyApiHandler.ts : A hanlder for my API
+```ts
+
+type ApiData = {
+  data?: Record<string, any>[];
+  isLoading: boolean;
+}
+
+export abstract class MyApiHandler extends StateHandler<ApiData>{
+
+  state : ApiData = {
+    data: undefined,
+    isLoading: false
+  }
+
+  protected _handlerConfig = { merge: true };
+
+  abstract readonly loadUri : string; // making loadUri property obligatory to define in inherited class
+  readonly saveUri? : string = undefined;
+
+  public load = ( params? : Record<string, any> ) => {
+    this.setState({isLoading: true});
+    return fetch( this.loadUri, { body : JSON.stringify( params) } )
+            .then( r => r.json() )
+            .then( resp => this.setState({ data : resp?.data ?? [] , isLoading: false}) )
+  }
+
+  public modify = ( item : Record<string, any>, changes : Record<string, any> ) => 
+    this.setState( { data : this.state.data?.map( i => i === item ? { ...i, ...changes } : i ) } )
+
+  public formModify = ( item : Record<string, any>, e: ChangeEvent<HTMLInputElement|HTMLSelectElement> ) => 
+    this.setState( { data : this.state.data?.map( d => d === item ? { ...d, ...{[e.target.name] : e.target.value} } : d ) } )
+
+  public delete = ( item : Record<string, any> ) => 
+    this.setState( { data : this.state.data?.filter( i => i !== item ) } )
+
+  public append = ( item : Record<string, any> ) =>
+    this.setState( { data : this.state.data?.concat( item ) } )
+
+  public prepend = ( item : Record<string, any> ) =>
+    this.setState( { data : [ item, this.state.data ?? []  ]} )
+
+  public save = ( params? : Record<string, any> ) => {
+    this.setState({isLoading: true});
+    return fetch( this.saveUri ?? '', { method: 'POST', body : JSON.stringify(params)} )
+      .then( r => r.json() )
+      .then( () => this.setState({ isLoading: false }) )
+  }
+
+}
+
+```
+
+MyComponent.tsx
+
+```tsx
+import { MyApiHandler } from "./MyApiHandler";
+
+class SpecificApiHandler extends MyApiHandler { loadUri = 'https://myapi/specific' }
+
+export function MyComponent() {
+
+  const [{data}, {load, formModify, save} ] = useStateHandler( SpecificApiHandler );
+
+  useEffect( () => { load() }, [] );
+
+  return ( ... );
 }
 
 ```
