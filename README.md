@@ -249,7 +249,7 @@ class CountHandlerTwo extends CountHandler {};
 You can write common functionality in a generic class and extend this class, adding the specifics. In this case, extending a parent generic class with StateHandler lets you encapsulate common functionality:
 
 
-MyApiHandler.ts : A hanlder for my API
+MyApiHandler.ts : A handler for my API
 ```ts
 
 type ApiData = {
@@ -526,8 +526,8 @@ You may define a constructor in your class. But is not necessary
 **Prefer defining an instanceCreated() method on the handler over the constructor to execute initial code.** 
 
 ```jsx
-constructor() {
-  super();
+constructor( initialState? : T) {
+  super(initialState);
   //your code
 }
 
