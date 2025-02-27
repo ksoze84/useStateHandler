@@ -4,6 +4,7 @@ Simple object based hook and state manager for React.
 
 KeyPoints: 
 * Keep the React paradigm; only mind this hook is persistent. If you are familiar with class components, you will be familiar with this as well.
+* Based on Classes.
 * Maintain a unique instance of the handler class on memory accross your application. 
 * Share the state and the methods to update it between components.
 * You write the class, the hook manages the rest.
