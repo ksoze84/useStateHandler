@@ -322,9 +322,9 @@ export function MyComponent() {
 
 ## instanceCreated() function
 
-Optional Callback function that may be implemented and is called only once when an instance is created. If exists in the instance, this method is called by the useStateHandler hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
+Optional handler method that is called only once when an instance is created. If exists in the instance, this method is called by the useStateHandler hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
 
-This method has NOT the same behavior as mount callback a component in React. The only way this method is called again by the hook is destroying the instance first with destroyInstance().
+This method has NOT the same behavior as mount callback of a component in React. The only way this method is called again by the hook is by destroying the instance first with destroyInstance().
 
 
 
@@ -526,7 +526,7 @@ You may define a constructor in your class. But is not necessary
 **Prefer defining an instanceCreated() method on the handler over the constructor to execute initial code.** 
 
 ```jsx
-constructor( initialState? : T) {
+constructor( initialState? : T ) {
   super(initialState);
   //your code
 }
