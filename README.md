@@ -1,10 +1,10 @@
 # useStateHandler
 
-Simple object based hook and state manager for React.  
+Simple class based hook and state manager for React.  
 
 KeyPoints: 
 * Keep the React paradigm; only mind this hook is persistent. If you are familiar with class components, you will be familiar with this as well.
-* Based on Classes.
+* Work with classes.
 * Maintain a unique instance of the handler class on memory accross your application. 
 * Share the state and the methods to update it between components.
 * You write the class, the hook manages the rest.
@@ -245,7 +245,7 @@ class CountHandlerTwo extends CountHandler {};
 
 ```
 
-### Inheritance
+### Extendibility and Inheritance
 
 You can write common functionality in a generic class and extend this class, adding the specifics. In this case, extending a parent generic class with StateHandler lets you encapsulate common functionality:
 
