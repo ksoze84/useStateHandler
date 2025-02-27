@@ -72,8 +72,7 @@ You can get the instance of your Handler using getHandler() utility method, main
 * To use handler actions without triggering re-renders in "control-only" components
 * To use the handler outside react
 
-### Updating last example:
-
+Updating last example:
 ```tsx
 
 function Counter() {
@@ -312,7 +311,7 @@ class SpecificApiHandler extends MyApiHandler { loadUri = 'https://myapi/specifi
 
 export function MyComponent() {
 
-  const [{data}, {load, formModify, save} ] = useStateHandler( SpecificApiHandler );
+  const [{data, isLoading}, {load, formModify, save} ] = useStateHandler( SpecificApiHandler );
 
   useEffect( () => { load() }, [] );
 
