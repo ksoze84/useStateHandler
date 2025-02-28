@@ -53,7 +53,7 @@ function Counter() {
 - [Rules](#rules)
 - [State initialization](#state-initialization)
 - [instanceCreated() function](#instancecreated-function)
-- [Get the instance](#get-the-instance)
+- [Get the instance with getHandler()](#get-the-instance-with-gethandler)
 - [Handler Configuration](#handler-configuration)
   - [Merging the state](#merging-the-state)
 - [usePartialHandler to update only when a determined subset of state properties changes](#usepartialhandler-to-update-only-when-a-determined-subset-of-state-properties-changes)
@@ -90,7 +90,7 @@ npm install use-state-handler --save
 
 ## State initialization
 
-You can set an initial state in the class definition or pass an initial value on the hook. You should not initialize the state with both methods, but if you do, the initial value on the hook will prevail unless the handler is already instantiated.
+You can set an initial state in the class definition or pass an initial value on the hook. You should not initialize the state with both methods, but if you do, the initial value on the hook will prevail.
 
 Prefer setting the state in the class definition for easier readability.
 
@@ -141,7 +141,7 @@ class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:num
 
 ```
 
-## Get the instance
+## Get the instance with getHandler()
 
 You can get the instance of your Handler using getHandler() utility method, mainly for two things:
 * To use handler actions without triggering re-renders in "control-only" components
