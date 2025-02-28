@@ -58,7 +58,30 @@ function Counter() {
 ```
 
 
-[TOC]
+## Table of Contents
+
+
+- [Installation](#installation)
+- [How to use](#how-to-use)
+- [Basic Example](#basic-example)
+- [Table of Contents](#table-of-contents)
+- [State initialization](#state-initialization)
+- [Get the instance](#get-the-instance)
+- [Rules](#rules)
+- [Handler Configuration](#handler-configuration)
+  - [Merging the state](#merging-the-state)
+- [usePartialHandler to update only when a determined subset of state properties changes](#usepartialhandler-to-update-only-when-a-determined-subset-of-state-properties-changes)
+- [Working with Classes](#working-with-classes)
+  - [Reutilizing classes](#reutilizing-classes)
+  - [Extendibility and Inheritance](#extendibility-and-inheritance)
+- [instanceCreated() function](#instancecreated-function)
+- [Destroying the instance](#destroying-the-instance)
+- [Your Own setState function](#your-own-setstate-function)
+  - [Example with immer:](#example-with-immer)
+  - [Or you can only change the accessibility modifier of setState](#or-you-can-only-change-the-accessibility-modifier-of-setstate)
+- [Constructor](#constructor)
+- [Big Example](#big-example)
+
 
 ## State initialization
 
