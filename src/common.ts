@@ -35,14 +35,14 @@ import { StateHandler, StateHandlerState, storage } from "./base";
  * @param handlerClass - The constructor of the StateHandler class.
  * @returns The instance of the StateHandler class.
  */
-export function getHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( handlerClass : new ( s?:T ) => H ) : H {
+export function getHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H ) : H {
   if ( !storage.has( handlerClass.name ) ) storage.set( handlerClass.name, {handler :new handlerClass( )} );
   return storage.get( handlerClass.name )?.handler as H;
 }
 
 
-export function mountLogic<T, H extends (StateHandler<T>|StateHandlerState<T>)>( dispatcher: React.Dispatch<React.SetStateAction<T>>, handlerClass : new ( s?:T ) => H) {
-  const handler = getHandler<T, H>( handlerClass );
+export function mountLogic<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( dispatcher: React.Dispatch<React.SetStateAction<T>>, handlerClass : new ( s?:T ) => H) {
+  const handler = getHandler<T, S, H>( handlerClass );
 
   if( !storage.get( handler.constructor.name )?.listeners ){
     storage.get( handler.constructor.name )!.listeners = [ dispatcher ] ;
@@ -54,7 +54,7 @@ export function mountLogic<T, H extends (StateHandler<T>|StateHandlerState<T>)>(
   return () => unmountLogic( dispatcher, handler );
 }
 
-export function unmountLogic<T>( dispatcher: React.Dispatch<React.SetStateAction<T>>, handler: StateHandler<T>) {
+export function unmountLogic<T, S>( dispatcher: React.Dispatch<React.SetStateAction<T>>, handler: StateHandler<T, S>) {
   if ( ( storage.get( handler.constructor.name )?.listeners?.length ?? 0 ) > 0 ) {
     storage.get( handler.constructor.name )!.listeners = storage.get( handler.constructor.name )?.listeners?.filter( l => l !== dispatcher) ?? [] ;
       if( handler["_handlerConfig"].destroyOnUnmount )

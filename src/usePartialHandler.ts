@@ -40,8 +40,8 @@ export function checkDepsSetter<T>( dispatcher: React.Dispatch<React.SetStateAct
     });
 }
 
-function usePartialHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T>, initial_value : T | (() => T)) : Readonly<[T, H]>
-function usePartialHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T>, initial_value? : T | (() => T)) : Readonly<[ H extends StateHandlerState<T> ? T : T | undefined, H]>
+function usePartialHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T>, initial_value : T | (() => T)) : Readonly<[T, H]>
+function usePartialHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T>, initial_value? : T | (() => T)) : Readonly<[ H extends StateHandlerState<T, S> ? T : T | undefined, H]>
 
 /**
  * 
@@ -59,8 +59,8 @@ function usePartialHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>(
  * 
  * @returns A readonly tuple containing the current state and the handler instance.
  */
-function usePartialHandler<T, H extends (StateHandler<T>|StateHandlerState<T>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T>, initial_value: T | (() => T)) : Readonly<[T | undefined, H]>  {
-  const handler               = getHandler<T, H>( handlerClass );
+function usePartialHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T>, initial_value: T | (() => T)) : Readonly<[T | undefined, H]>  {
+  const handler               = getHandler<T, S, H>( handlerClass );
   const [, setState]          = React.useState<T>( (initial_value instanceof Function ? initial_value() : initial_value) ?? handler.state as T );    
   
   useEffect( () => mountLogic( checkDepsSetter( setState, depsArray ) as React.Dispatch<React.SetStateAction<T>>, handlerClass ), [] );

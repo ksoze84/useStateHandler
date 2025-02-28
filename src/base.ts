@@ -25,7 +25,9 @@ SOFTWARE.
 
 import React from "react";
 
-export const storage = new Map<string, {handler : StateHandler<any>, listeners? : React.Dispatch<React.SetStateAction<any>>[]}>();
+type SetStateType<T> = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => void;
+
+export const storage = new Map<string, {handler : StateHandler<any, any>, listeners? : React.Dispatch<React.SetStateAction<any>>[]}>();
 
 /**
  * Abstract class representing a state handler. This class should be extended to create a state handler.  
@@ -37,7 +39,7 @@ export const storage = new Map<string, {handler : StateHandler<any>, listeners? 
  * 
  * @template T - The type of the state.
  */
-export abstract class StateHandler<T> {
+export abstract class StateHandler<T, S = SetStateType<T>> {
 
 
   /**
@@ -76,11 +78,21 @@ export abstract class StateHandler<T> {
    * 
    * @param value - The new state or a function that returns the new state based on the previous state.
    */
-  public readonly setState = (value: T | Partial<T> | ((prevState: T) => T |Partial<T>)) => {
+  protected readonly _setState : SetStateType<T> = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => {
     const newState = value instanceof Function ? value(this.state as T) : value;
     this.state = (this._handlerConfig.merge ? { ...this.state, ...newState } : newState) as T;
     storage.get(this.constructor.name)?.listeners?.forEach( l => l(this.state) );
   };
+
+
+
+
+  /**
+   * Sets the state and notifies all listeners. (wrapper for _setState)
+   * 
+   */
+  protected setState : S = this._setState as S
+
 
   /**
    * Destroys the instance if there are no active listeners.  
@@ -107,6 +119,6 @@ export abstract class StateHandler<T> {
 
 }
 
-export abstract class StateHandlerState<T> extends StateHandler<T> {
+export abstract class StateHandlerState<T, S = SetStateType<T>> extends StateHandler<T, S> {
   abstract state    : T;
 }

@@ -1,6 +1,7 @@
 import React from "react";
+type SetStateType<T> = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => void;
 export declare const storage: Map<string, {
-    handler: StateHandler<any>;
+    handler: StateHandler<any, any>;
     listeners?: React.Dispatch<any>[] | undefined;
 }>;
 /**
@@ -13,7 +14,7 @@ export declare const storage: Map<string, {
  *
  * @template T - The type of the state.
  */
-export declare abstract class StateHandler<T> {
+export declare abstract class StateHandler<T, S = SetStateType<T>> {
     /**
      * Configuration object for the state handler.
      *
@@ -48,7 +49,12 @@ export declare abstract class StateHandler<T> {
      *
      * @param value - The new state or a function that returns the new state based on the previous state.
      */
-    readonly setState: (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => void;
+    protected readonly _setState: SetStateType<T>;
+    /**
+     * Sets the state and notifies all listeners. (wrapper for _setState)
+     *
+     */
+    protected setState: S;
     /**
      * Destroys the instance if there are no active listeners.  
      * Use this method to delete the instance **on the unmount callback** of the component using it.  
@@ -64,6 +70,7 @@ export declare abstract class StateHandler<T> {
      */
     constructor(state?: T);
 }
-export declare abstract class StateHandlerState<T> extends StateHandler<T> {
+export declare abstract class StateHandlerState<T, S = SetStateType<T>> extends StateHandler<T, S> {
     abstract state: T;
 }
+export {};
