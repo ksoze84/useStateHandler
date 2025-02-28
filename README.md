@@ -12,21 +12,7 @@ KeyPoints:
 * Helps to separate logic from render.
 * Minimal and simple code. Small footprint and low impact in React's cycles. 
 
-This is not a hook meant to replace useState, but rather to be used alongside another hooks, like useState, but mostly with useEffect to control related components mount/unmount.
-
-
-## Installation
-
-```
-npm install use-state-handler --save
-```
-
-## How to use
-
-
-1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all state update methods you want to this class.
-1. Use the hook useStateHandler( C_Handler, initial_value ). This hook returns [ state, C_Handler ]
-1. enjoy!
+This is not a hook meant to replace useState, but rather to be used alongside another hooks, like useState, but mostly with useEffect to control the handler when components mount/unmount.
 
 ## Basic Example
 
@@ -57,30 +43,49 @@ function Counter() {
 
 ```
 
-
 ## Table of Contents
 
 
-- [Installation](#installation)
-- [How to use](#how-to-use)
 - [Basic Example](#basic-example)
 - [Table of Contents](#table-of-contents)
-- [State initialization](#state-initialization)
-- [Get the instance](#get-the-instance)
+- [Installation](#installation)
+- [How to use](#how-to-use)
 - [Rules](#rules)
+- [State initialization](#state-initialization)
+- [instanceCreated() function](#instancecreated-function)
+- [Get the instance](#get-the-instance)
 - [Handler Configuration](#handler-configuration)
   - [Merging the state](#merging-the-state)
 - [usePartialHandler to update only when a determined subset of state properties changes](#usepartialhandler-to-update-only-when-a-determined-subset-of-state-properties-changes)
 - [Working with Classes](#working-with-classes)
   - [Reutilizing classes](#reutilizing-classes)
   - [Extendibility and Inheritance](#extendibility-and-inheritance)
-- [instanceCreated() function](#instancecreated-function)
-- [Destroying the instance](#destroying-the-instance)
 - [Your Own setState function](#your-own-setstate-function)
   - [Example with immer:](#example-with-immer)
   - [Or you can only change the accessibility modifier of setState](#or-you-can-only-change-the-accessibility-modifier-of-setstate)
+- [Destroying the instance](#destroying-the-instance)
 - [Constructor](#constructor)
-- [Big Example](#big-example)
+
+
+## Installation
+
+```
+npm install use-state-handler --save
+```
+
+## How to use
+
+
+1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all state update methods you want to this class.
+1. Use the hook useStateHandler( C_Handler, initial_value ). This hook returns [ state, C_Handler ]
+1. enjoy!
+
+## Rules
+
+* Never set Handler.state directly; it is read only!
+* You may save another data in the class, but beware of component state updates signaling and mounting logics if this data mutates over time.
+* Do not manipulate state directly in the constructor.
+* The class name is the key for this software to work as expected. Never use the same name for state handler classes even if they are declared in different scopes.
 
 
 ## State initialization
@@ -89,8 +94,52 @@ You can set an initial state in the class definition or pass an initial value on
 
 Prefer setting the state in the class definition for easier readability.
 
-Code you wrote in instanceCreated() method will update the initial state.
+```tsx
 
+class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
+  state = {
+    chairs: 0,
+    tables : 0,
+    rooms : 10
+  }
+
+  ...
+}
+
+// OR 
+
+function Counter() {
+  const [counters] = useStateHandler(CountHandler, { chairs: 0, tables : 0, rooms : 10 });
+
+ ...
+}
+
+```
+
+**Code you wrote in instanceCreated() method will update the initial state.**
+
+
+## instanceCreated() function
+
+Optional handler method that is called only once when an instance is created. If exists in the instance, this method is called by the useStateHandler hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
+
+This method has NOT the same behavior as mount callback of a component in React. The only way this method is called again by the hook is by destroying the instance first with destroyInstance().
+
+```tsx
+
+class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
+  state = {
+    chairs: 0,
+    tables : 0,
+    rooms : 0
+  }
+
+  instanceCreated = () => {
+    fetch('https://myapi.com/counters').then( r => r.json() ).then( r => this.setState(r) );
+  }
+}
+
+```
 
 ## Get the instance
 
@@ -98,8 +147,15 @@ You can get the instance of your Handler using getHandler() utility method, main
 * To use handler actions without triggering re-renders in "control-only" components
 * To use the handler outside react
 
-Updating last example:
 ```tsx
+
+class CountHandler extends StateHandler<number> {
+  state = 0;
+
+  public add      = () => this.setState( s => s + 1 );
+  public subtract = () => this.setState( s => s - 1 );
+  public reset    = () => this.setState( 0 );
+}
 
 function Counter() {
   const [count] = useStateHandler(CountHandler);
@@ -134,14 +190,6 @@ export function App() {
 
 
 ```
-
-
-## Rules
-
-* Never set Handler.state directly; it is read only!
-* You may save another data in the class, but beware of component state updates signaling and mounting logics if this data mutates over time.
-* Do not manipulate state directly in the constructor.
-* The class name is the key for this software to work as expected. Never use the same name for state handler classes even if they are declared in different scopes.
 
 
 ## Handler Configuration
@@ -207,7 +255,7 @@ function Tables() {
 
 ## usePartialHandler to update only when a determined subset of state properties changes
 
-When a non-undefined object with many properties is used as state, the useStateHandler hook will trigger re-render for any part of the state changed, even if only the component is using only one of the properties. This can be optimized using the provided usePartialHandler hook. It is better fitted if the merge state option is on true.
+When a non-undefined object with many properties is used as state, the useStateHandler hook will trigger re-render for any part of the state changed, even if only the component is using only one of the properties. This can be optimized using the provided usePartialHandler hook, which performs a shallow comparison. It is more suitable if the merge state option is set to true.
 
 The usage of this hook is identical to useStateHandler, but the second argument must be a non-empty array of strings with the state property names. An initial state can be defined in the third argument. 
 
@@ -261,11 +309,10 @@ function Tables() {
 
 ### Reutilizing classes
 
-Classes are made for reutilization, making new instances from these. But in this case, the instance is managed by the hook, and it maintains only one instance per class name.  
-One way to use your class again with this hook, without duplicating code, is to extend it:
+Classes are made for reutilization, making new instances from these. But in this case, the instance creation is managed by the hook, and it maintains only one instance per class name. 
+One way to use your class again with this hook without duplicating code is to extend it:
 
 ```ts
-
 class CountHandlerTwo extends CountHandler {};
 
 ```
@@ -305,17 +352,11 @@ export abstract class MyApiHandler extends StateHandler<ApiData>{
   public modify = ( item : Record<string, any>, changes : Record<string, any> ) => 
     this.setState( { data : this.state.data?.map( i => i === item ? { ...i, ...changes } : i ) } )
 
-  public formModify = ( item : Record<string, any>, e: ChangeEvent<HTMLInputElement|HTMLSelectElement> ) => 
-    this.setState( { data : this.state.data?.map( d => d === item ? { ...d, ...{[e.target.name] : e.target.value} } : d ) } )
-
   public delete = ( item : Record<string, any> ) => 
     this.setState( { data : this.state.data?.filter( i => i !== item ) } )
 
   public append = ( item : Record<string, any> ) =>
     this.setState( { data : this.state.data?.concat( item ) } )
-
-  public prepend = ( item : Record<string, any> ) =>
-    this.setState( { data : [ item, this.state.data ?? []  ]} )
 
   public save = ( params? : Record<string, any> ) => {
     this.setState({isLoading: true});
@@ -346,43 +387,10 @@ export function MyComponent() {
 
 ```
 
-## instanceCreated() function
-
-Optional handler method that is called only once when an instance is created. If exists in the instance, this method is called by the useStateHandler hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
-
-This method has NOT the same behavior as mount callback of a component in React. The only way this method is called again by the hook is by destroying the instance first with destroyInstance().
-
-
-
-```tsx
-
-class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
-  state = {
-    chairs: 0,
-    tables : 0,
-    rooms : 0
-  }
-
-  instanceCreated = () => {
-    fetch('https://myapi.com/counters').then( r => r.json() ).then( r => this.setState(r) );
-  }
-}
-
-```
-
-## Destroying the instance
-
-You may destroy the instance when needed using the **destroyInstance()** method. This method must be called **on the unmount callback** of the component using it.  
-This first checks if there are active state hook listeners active. If there isn't, the instance reference is deleted, and the **instanceDeleted()** method is called if exists.
-
-If you implement **instanceDeleted()**, remember that it is not the equivalent of an unmount component callback.
-
-This is not neccesary if the handler option destroyOnUnmount is true
-
 
 ## Your Own setState function
 
-setState() is only a wrapper for the real _setState() function. You can directly modify it in Javascript; in Typescript, you need to define te setState type as a second generic type of the class.
+setState() is only a wrapper for the real _setState() function. You can directly modify it in Javascript; in Typescript, you need to define the setState type as a second generic type of the class.
 
 ### Example with immer:
 ```tsx
@@ -428,6 +436,29 @@ function Tables() {
 public setState = this._setState
 ```
 
+## Destroying the instance
+
+You may destroy the instance when needed using the **destroyInstance()** method. This method must be called **on the unmount callback** of the component using it.  
+This first checks if there are active state hook listeners active. If there isn't, the instance reference is deleted, and the **instanceDeleted()** method is called if exists.
+
+If you implement **instanceDeleted()**, remember that it is not the equivalent of an unmount component callback.
+
+This is not neccesary if the handler option destroyOnUnmount is true
+
+```tsx
+export function App() {
+
+  const [ {data}, {load, destroyInstance} ] = useStateHandler( ActividadesHandler );
+
+  useEffect( () => {
+    load();
+    return () => destroyInstance(); // instanceDeleted() would be called
+  }, [] );
+
+ ...
+}
+
+```
 
 ## Constructor
 
@@ -445,169 +476,5 @@ constructor( initialState? : T ) {
 
 Constructor code of the class and its inherited instances constructors are not part of the mounting/unmounting logic of react. Hook state listeners may or may not be ready when the code executes. 
 
-It is safe to make changes that do not involve the state.
+It is safe to write code that do not involve changing the state directly.
 
-## Big Example
-
-ModalCert.tsx:
-```jsx
-import { CertHandler } from './CertHandler';
-import { useStateHandler } from 'use-state-handler';
-
-const ModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
-
-  const [ cert, handler ] = useStateHandler( CertHandler );
-
-  useEffect( () => { handler.load( cert_name ) }, [] )
-
-  return (
-    <div className="box">
-
-      <input
-        type='text'
-        placeholder="ej: Jhon"
-        value={cert.name}
-        name="name"
-        onChange={ handler.setInput }
-      />
-      
-      <input
-        type='text'
-        placeholder="ej: Jhon@mail.com"
-        value={cert.mail}
-        name="mail"
-        onChange={ handler.setInput }
-      />
-
-      <select
-        name="type"
-        onChange={ handler.setType }
-      >
-        <option value="A"></option>
-        <option value="B"></option>
-      </select>
-
-      <span className="subtitle">Output Signature:</span>
-      <div className="signature"> cert.description </div>
-
-      <MyControlComponent 
-        certHandler={handler}
-      />
-
-      <button onClick={handler.save}>
-        Save
-      </button>
-
-    </div> 
-  );
-
-}
-
-```
-
-CertHandler.ts
-```jsx
-import { StateHandler } from 'use-state-handler';
-
-export class CertHandler extends StateHandler<ICert> {
-
-  private descA = " Description A ...";
-  private descB = " Description B ...";
-
-  state = { name : "", mail : "" };
-
-  instanceCreated = ( ) => 
-    this.load( "" )
-
-
-  public load = ( name : string ) =>
-    fetch( "url", name )
-      .then( data => setState( data ) )
-  
-
-  public setValue = ( name: string, val : any ) => {
-    this.setState (  {...this.state, ...{ [name] : val } }  )
-  }
-
-  public loadControlOptions = ( id : string ) => 
-    fetch( "url_details" )
-      .then( data => setState( {...this.state, ...{ details : data } } )
-
-  public setInput = ( e : ChangeEvent<HTMLInputElement> ) => {   
-    this.setValue ( e.target.name, e.target.value )
-  } 
-
-  public setType = ( e : ChangeEvent<HTMLSelectElement> ) => {   
-    let type = e.target.value;
-    let desc : string
-    
-    if(type === "A")
-      desc = state.name + this.descA;
-    else
-      desc = this.descB;
-
-    setState({...this.state, ...{ type : type, description : desc } });
-  } 
-
-
-  save = () =>
-    post( "save_url", this.state )
-
-}
-
-```
-NewModalCert.tsx:
-```jsx
-import { CertHandler } from './CertHandler';
-import { useStateHandler } from 'use-state-handler';
-
-//same as before but different initialization
-const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
-
-  const [ cert, handler ] = useStateHandler( CertHandler );
-
-
-  return (
-    <div className="box">
-
-      <input
-        type='text'
-        placeholder="ej: Jhon"
-        value={cert.name}
-        name="name"
-        onChange={ handler.setInput }
-      />
-      
-      <input
-        type='text'
-        placeholder="ej: Jhon@mail.com"
-        value={cert.mail}
-        name="mail"
-        onChange={ handler.setInput }
-      />
-
-      <select
-        name="type"
-        onChange={ handler.setType }
-      >
-        <option value="A"></option>
-        <option value="B"></option>
-      </select>
-
-      <span className="subtitle">Output Signature:</span>
-      <div className="signature"> cert.description </div>
-
-      <MyControlComponent 
-        certHandler={handler}
-      />
-
-      <button onClick={handler.save}>
-        Save
-      </button>
-
-    </div> 
-  );
-
-}
-
-```
