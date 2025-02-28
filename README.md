@@ -57,6 +57,9 @@ function Counter() {
 
 ```
 
+
+[TOC]
+
 ## State initialization
 
 You can set an initial state in the class definition or pass an initial value on the hook. You should not initialize the state with both methods, but if you do, the initial value on the hook will prevail unless the handler is already instantiated.
