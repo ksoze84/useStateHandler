@@ -476,5 +476,5 @@ constructor( initialState? : T ) {
 
 Constructor code of the class and its inherited instances constructors are not part of the mounting/unmounting logic of react. Hook state listeners may or may not be ready when the code executes. 
 
-It is safe to write code that do not involve changing the state directly.
+It is safe to write code that does not involve changing the state directly.
 
