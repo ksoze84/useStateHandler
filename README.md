@@ -353,6 +353,74 @@ If you implement **instanceDeleted()**, remember that it is not the equivalent o
 
 This is not neccesary if the handler option destroyOnUnmount is true
 
+
+## Your Own setState function
+
+setState() is only a wrapper for the real _setState() function. You can directly modify it in Javascript; in Typescript, you need to define te setState type as a second generic type of the class.
+
+### Example with immer:
+```tsx
+import { produce, WritableDraft } from "immer";
+
+type CountState = {chairs:number, tables:number, rooms:number};
+type MySetStateType = ( recipe : (draft: WritableDraft<CountState>) => void ) => void;
+
+export class CountHandler extends StateHandler<CountState, MySetStateType> {
+  state = {
+    chairs: 0,
+    tables : 0,
+    rooms : 10
+  }
+
+  public setState : MySetStateType = ( recipe ) => this._setState( s => produce(s, recipe) )
+
+}
+
+function Chairs() {
+  const [{chairs}, {setState}] = useStateHandler(CountHandler);
+  return <>
+    <span>Chairs: {chairs}</span>
+    <button onClick={() => setState( s => { s.chairs++ } )}>+</button>
+    <button onClick={() => setState( s => { s.chairs-- } )}>-</button>
+  </>
+}
+
+function Tables() {
+  const [{tables}, {setState}] = useStateHandler(CountHandler);
+  return <>
+    <span>Tables: {tables}</span>
+    <button onClick={() => setState( s => { s.tables++ } )}>+</button>
+    <button onClick={() => setState( s => { s.tables-- } )}>-</button>
+  </>
+}
+
+```
+
+
+### Or you can only change the accessibility modifier of setState
+```tsx
+public setState = this._setState
+```
+
+
+## Constructor
+
+You may define a constructor in your class. But is not necessary
+
+**Prefer defining an instanceCreated() method on the handler over the constructor to execute initial code.** 
+
+```tsx
+constructor( initialState? : T ) {
+  super(initialState);
+  //your code
+}
+
+```
+
+Constructor code of the class and its inherited instances constructors are not part of the mounting/unmounting logic of react. Hook state listeners may or may not be ready when the code executes. 
+
+It is safe to make changes that do not involve the state.
+
 ## Big Example
 
 ModalCert.tsx:
@@ -517,73 +585,3 @@ const NewModalCert: FunctionComponent<ModalProps> = ({ cert_name }) => {
 }
 
 ```
-
-
-
-## Your Own setState function
-
-setState() is only a wrapper for the real _setState() function. You can directly modify it in Javascript; in Typescript, you need to define te setState type as a second generic type of the class.
-
-### Example with immer:
-```tsx
-import { produce, WritableDraft } from "immer";
-
-type CountState = {chairs:number, tables:number, rooms:number};
-type MySetStateType = ( recipe : (draft: WritableDraft<CountState>) => void ) => void;
-
-export class CountHandler extends StateHandler<CountState, MySetStateType> {
-  state = {
-    chairs: 0,
-    tables : 0,
-    rooms : 10
-  }
-
-  public setState : MySetStateType = ( recipe ) => this._setState( s => produce(s, recipe) )
-
-}
-
-function Chairs() {
-  const [{chairs},{setState}] = useStateHandler(CountHandler);
-  return <>
-    <span>Chairs: {chairs}</span>
-    <button onClick={() => setState( s => { s.chairs++ } )}>+</button>
-    <button onClick={() => setState( s => { s.chairs-- } )}>-</button>
-  </>
-}
-
-function Tables() {
-  const [{tables}, {setState}] = useStateHandler(CountHandler);
-  return <>
-    <span>Tables: {tables}</span>
-    <button onClick={() => setState( s => { s.tables++ } )}>+</button>
-    <button onClick={() => setState( s => { s.tables-- } )}>-</button>
-  </>
-}
-
-```
-
-
-### Or you can only change the accessibility modifier of setState
-```tsx
-public setState = this._setState
-```
-
-
-## Constructor
-
-You may define a constructor in your class. But is not necessary
-
-**Prefer defining an instanceCreated() method on the handler over the constructor to execute initial code.** 
-
-```tsx
-constructor( initialState? : T ) {
-  super(initialState);
-  //your code
-}
-
-```
-
-Constructor code of the class and its inherited instances constructors are not part of the mounting/unmounting logic of react. Hook state listeners may or may not be ready when the code executes. 
-
-It is safe to make changes that do not involve the state.
-

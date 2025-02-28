@@ -1,13 +1,12 @@
 {
   "name": "use-state-handler",
-  "version": "4.2.0",
+  "version": "4.2.1",
   "description": "Object based state handler",
   "main": "lib/main.js",
   "module": "lib/main.esm.js",
   "author": "Felipe Rodriguez Herrera",
   "license": "MIT",
   "types": "lib/main.d.ts",
-  "dependencies": {},
   "scripts": {
     "build": "rollup -c",
     "deploy": "npm version minor --force -m",
