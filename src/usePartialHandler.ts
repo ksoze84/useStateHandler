@@ -28,16 +28,26 @@ import { StateHandler, StateHandlerState } from "./base";
 import { getHandler, mountLogic } from "./common";
 
 
-export function checkDepsSetter<T>( dispatcher: React.Dispatch<React.SetStateAction<T>>, deps: Array<keyof T> )  {
+export function checkDepsSetter<T>( dispatcher: React.Dispatch<React.SetStateAction<T>>, deps: Array<keyof T> | ((s : T) => unknown ) ) {
   return ( newState : T ) => 
     dispatcher( s => {
-      for( const dep of deps ){
-        if( s[dep] !== newState[dep] ){
-          return newState ;
+      if( Array.isArray( deps ) ){
+        for( const dep of deps ){
+          if( s[dep] !== newState[dep] ){
+            return newState ;
+          }
         }
+        return s; 
       }
-      return s;
-    });
+      else{
+        const oldSelector = deps( s );
+        const newSelector = deps( newState );
+        if( JSON.stringify( oldSelector ) !== JSON.stringify( newSelector ) ){
+          return newState;
+        }
+        return s;
+      }
+    } );
 }
 
 function usePartialHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T>, initial_value : T | (() => T)) : Readonly<[T, H]>
@@ -59,7 +69,7 @@ function usePartialHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState
  * 
  * @returns A readonly tuple containing the current state and the handler instance.
  */
-function usePartialHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T>, initial_value: T | (() => T)) : Readonly<[T | undefined, H]>  {
+function usePartialHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T> | ((s : T) => Record<string, unknown>), initial_value: T | (() => T)) : Readonly<[T | undefined, H]>  {
   const handler               = getHandler<T, S, H>( handlerClass );
   const [, setState]          = React.useState<T>( (initial_value instanceof Function ? initial_value() : initial_value) ?? handler.state as T );    
   

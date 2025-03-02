@@ -1,4 +1,4 @@
-# useStateHandler
+# Deez & GlaDeez
 
 Simple class based hook and state manager for React.  
 

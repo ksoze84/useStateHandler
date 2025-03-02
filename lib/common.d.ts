@@ -1,7 +1,7 @@
 /// <reference types="react" />
 import { StateHandler, StateHandlerState } from "./base";
 /**
- * Gets the instance of the handler class.  
+ * Gets the instance of the handler class.
  * This is not a hook. It will not trigger re-renders when used in components.
  *
  * @template T - The type of the state.
