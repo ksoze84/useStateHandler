@@ -27,8 +27,10 @@ import React, { useEffect } from "react";
 import { StateHandler, StateHandlerState } from "./base";
 import { getHandler, mountLogic } from "./common";
 
+type SelectorFunction <T, F> = ( s : T ) => F;
+type CompareFunction <T> = ( s : T ) => boolean;
 
-export function checkDepsSetter<T, F>( dispatcher: React.Dispatch<React.SetStateAction<T>>, deps: Array<keyof T> | ((s : T) => F ) ) {
+export function checkDepsSetter<T, F>( dispatcher: React.Dispatch<React.SetStateAction<T>>, deps: Array<keyof T> | SelectorFunction<T, F> | CompareFunction<T> ) {
   return ( newState : T ) => 
     dispatcher( s => {
       if( Array.isArray( deps ) ){
@@ -68,7 +70,7 @@ export function checkDepsSetter<T, F>( dispatcher: React.Dispatch<React.SetState
 
 function usePartialHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T>, initial_value : T | (() => T)) : Readonly<[T, H]>
 function usePartialHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T>, initial_value? : T | (() => T)) : Readonly<[ H extends StateHandlerState<T, S> ? T : T | undefined, H]>
-function usePartialHandler<T, S, F, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : ((s : T) => F), initial_value? : T | (() => T)) : Readonly<[F , H]>
+function usePartialHandler<T, S, F, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : SelectorFunction<T, F>, initial_value? : T | (() => T)) : Readonly<[F , H]>
 
 /**
  * 
@@ -86,13 +88,13 @@ function usePartialHandler<T, S, F, H extends (StateHandler<T, S>|StateHandlerSt
  * 
  * @returns A readonly tuple containing the current state and the handler instance.
  */
-function usePartialHandler<T, S, F, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T> | ((s : T) => F), initial_value: T | (() => T)) : Readonly<[T | F | undefined, H]>  {
+function usePartialHandler<T, S, F, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T> | SelectorFunction<T, F> | CompareFunction<T>, initial_value: T | (() => T)) : Readonly<[T | F | undefined, H]>  {
   const handler               = getHandler<T, S, H>( handlerClass );
   const [, setState]          = React.useState<T>( (initial_value instanceof Function ? initial_value() : initial_value) ?? handler.state as T );    
   
   useEffect( () => mountLogic( checkDepsSetter( setState, depsArray ) as React.Dispatch<React.SetStateAction<T>>, handlerClass ), [] );
 
-  return [ depsArray instanceof Function ? depsArray( handler.state as T ) : handler.state, handler ];
+  return [ depsArray instanceof (( s : T ) => F) ? depsArray( handler.state as T ) : handler.state, handler ];
 }
 
 
