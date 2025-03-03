@@ -5,9 +5,10 @@ Simple class based hook and state manager for React.
 KeyPoints: 
 * Keep the React paradigm. If you are familiar with class components, you will be familiar with this as well.
 * Work with classes.
-* Can persist the state if you want: 
+* Persist the state & handler instance : 
   * Maintain a unique instance of the handler class on memory accross your application. 
   * Share the state and the methods to update it between components.
+* Or don't persist anything if you use the standalone hook
 * You write the class, the hook manages the rest.
 * Heavy functions are not instantiated in every render. Minimize overhead by avoiding useCallback, useReducer, useMemo, and dependency arrays.
 * Helps to separate logic from render.
@@ -52,7 +53,6 @@ function Counter() {
 - [Installation](#installation)
 - [How to use](#how-to-use)
 - [Rules](#rules)
-- [useHandler: the standalone hook](#usehandler-the-standalone-hook)
 - [State initialization](#state-initialization)
 - [instanceCreated() function](#instancecreated-function)
 - [Get the instance with getHandler()](#get-the-instance-with-gethandler)
@@ -60,6 +60,7 @@ function Counter() {
   - [Merging the state](#merging-the-state)
 - [usePartialHandler to update only when a determined subset of state properties changes](#usepartialhandler-to-update-only-when-a-determined-subset-of-state-properties-changes)
   - [You can also use Selectors \[with derived data\] or a compare function with usePartialState](#you-can-also-use-selectors-with-derived-data-or-a-compare-function-with-usepartialstate)
+- [useHandler: the standalone hook](#usehandler-the-standalone-hook)
 - [Working with Classes](#working-with-classes)
   - [Reutilizing classes](#reutilizing-classes)
   - [Extendibility and Inheritance](#extendibility-and-inheritance)
@@ -89,42 +90,6 @@ npm install use-state-handler --save
 * You may save another data in the class, but beware of component state updates signaling and mounting logics if this data mutates over time.
 * Do not manipulate state directly in the constructor.
 * The class name is the key for this software to work as expected. Never use the same name for state handler classes even if they are declared in different scopes.
-
-
-## useHandler: the standalone hook
-
-This is a simple, classic-behavior hook that:
-* Makes an instance for each component using the class; instance does not persist.
-* Isolates the instance; the state is not shared with other components using the same class nor the same remounted component.
-* This hook does not work alongside usePartialHandler, getHandler nor useStateHandler, because these persist the instance.
-* More performant than these other hooks.
-* Have the advantages of:
-  * Work with classes.
-  * Merge state option.
-  * instanceCreated and instanceDeleted optional methods (in this case are equivalent to mount/unmount the component).
-  * Wrap setState.
-
-```tsx
-import { StateHandler, useHandler } from "use-state-handler";
-
-class CountHandler extends StateHandler<number> {
-  public add      = () => this.setState( s => s + 1 );
-  public subtract = () => this.setState( s => s - 1 );
-  public reset    = () => this.setState( 0 );
-}
-
-function Counter() {
-  const [count, {add, subtract}] = useHandler(CountHandler, 0);
-
-  return (
-    <div>
-      <span>{count}</span>
-      <button onClick={add}>+</button>
-      <button onClick={subtract}>-</button>
-    </div>
-  );
-}
-```
 
 ## State initialization
 
@@ -158,7 +123,7 @@ function Counter() {
 
 ## instanceCreated() function
 
-Optional handler method that is called only once when an instance is created. If exists in the instance, this method is called by the useStateHandler hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
+Optional handler method that is called only once when an instance is created. If exists in the instance, this method is called by the useStateHandler or usePartialHandler use hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
 
 This method has NOT the same behavior as mount callback of a component in React. The only way this method is called again by the hook is by destroying the instance first with destroyInstance().
 
@@ -354,6 +319,41 @@ function Tables() {
     <button onClick={addTables}>+</button>
     <button onClick={subtractTables}>-</button>
   </>
+}
+```
+
+## useHandler: the standalone hook
+
+This is a simple, classic-behavior hook that:
+* Makes an instance for each component using the class; instance does not persist.
+* Isolates the instance; the state is not shared with other components using the same class nor the same remounted component.
+* This hook does not work alongside usePartialHandler, getHandler nor useStateHandler, because these persist the instance.
+* More performant than these other hooks.
+* Have the advantages of:
+  * Work with classes.
+  * Merge state option.
+  * instanceCreated and instanceDeleted optional methods (in this case are equivalent to mount/unmount the component).
+  * Wrap setState.
+
+```tsx
+import { StateHandler, useHandler } from "use-state-handler";
+
+class CountHandler extends StateHandler<number> {
+  public add      = () => this.setState( s => s + 1 );
+  public subtract = () => this.setState( s => s - 1 );
+  public reset    = () => this.setState( 0 );
+}
+
+function Counter() {
+  const [count, {add, subtract}] = useHandler(CountHandler, 0);
+
+  return (
+    <div>
+      <span>{count}</span>
+      <button onClick={add}>+</button>
+      <button onClick={subtract}>-</button>
+    </div>
+  );
 }
 ```
 
