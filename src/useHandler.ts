@@ -23,7 +23,7 @@ SOFTWARE.
  */
 
 
-import React from "react";
+import React, { useEffect } from "react";
 import {  StateHandler, StateHandlerState } from "./StateHandler";
 
 function initSimpleHandler<T, S, H extends (StateHandler<T, S> | StateHandlerState<T, S>)>(handlerClass: new (s?: T) => H, initial_value: T | (() => T), getSetState: () => React.Dispatch<React.SetStateAction<T>>) {
@@ -61,6 +61,10 @@ function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)
   const [handler, ]                   = React.useState<StateHandler<T, S>>( () : H => initSimpleHandler<T, S, H>(handlerClass, initial_value, () => setState ) );
   const [state, setState]             = React.useState<T>( handler.state as T );    
   
+  useEffect(() => {
+    handler["instanceCreated"]?.();
+    return () => handler.destroyInstance()
+  })
 
   return [ state, handler as H ];
 }

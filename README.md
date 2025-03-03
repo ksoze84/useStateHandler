@@ -5,12 +5,13 @@ Simple class based hook and state manager for React.
 KeyPoints: 
 * Keep the React paradigm. If you are familiar with class components, you will be familiar with this as well.
 * Work with classes.
-* Maintain a unique instance of the handler class on memory accross your application. 
-* Share the state and the methods to update it between components.
+* Can persist the state if you want: 
+  * Maintain a unique instance of the handler class on memory accross your application. 
+  * Share the state and the methods to update it between components.
 * You write the class, the hook manages the rest.
 * Heavy functions are not instantiated in every render. Minimize overhead by avoiding useCallback, useReducer, useMemo, and dependency arrays.
 * Helps to separate logic from render.
-* Minimal and simple code. Small footprint and low impact in React's cycles. 
+* Minimal and simple code. Small footprint and low impact in React's cycles. ( < 5kB minified ).
 
 This is not a hook meant to replace useState, but rather to be used alongside another hooks, like useState, but mostly with useEffect to control the handler when components mount/unmount.
 
@@ -51,7 +52,7 @@ function Counter() {
 - [Installation](#installation)
 - [How to use](#how-to-use)
 - [Rules](#rules)
-- [useHandler, the standalone hook](#usehandler-the-standalone-hook)
+- [useHandler: the standalone hook](#usehandler-the-standalone-hook)
 - [State initialization](#state-initialization)
 - [instanceCreated() function](#instancecreated-function)
 - [Get the instance with getHandler()](#get-the-instance-with-gethandler)
@@ -90,13 +91,13 @@ npm install use-state-handler --save
 * The class name is the key for this software to work as expected. Never use the same name for state handler classes even if they are declared in different scopes.
 
 
-## useHandler, the standalone hook
+## useHandler: the standalone hook
 
 This is a simple, classic-behavior hook that:
-* does not persist.
-* does not share its state with other components.
-* does not work alongside usePartialHandler, getHandler nor useStateHandler.
-* More performant than this other hooks.
+* Makes an instance for each component using the class; instance does not persist.
+* Isolates the instance; the state is not shared with other components using the same class nor the same remounted component.
+* This hook does not work alongside usePartialHandler, getHandler nor useStateHandler, because these persist the instance.
+* More performant than these other hooks.
 * It does have the other advantages of working with classes.
 
 
@@ -125,7 +126,7 @@ function Counter() {
 
 ## State initialization
 
-You can set an initial state in the class definition or pass an initial value on the hook. You should not initialize the state with both methods, but if you do, the initial value on the hook will prevail.
+You can set an initial state in the class definition or pass an initial value on the hook. You should not initialize the state with both methods, but if you do, the initial value on the hook has priority.
 
 Prefer setting the state in the class definition for easier readability.
 
@@ -435,7 +436,7 @@ export function MyComponent() {
 
 ## Your Own setState function
 
-setState() is only a wrapper for the real _setState() function. You can directly modify it in Javascript; in Typescript, you need to define the setState type as a second generic type of the class.
+setState() is only a wrapper for the actual _setState() function. You can directly modify it in Javascript; in Typescript, you need to define the setState type as a second generic type of the class.
 
 ### Example with immer:
 ```tsx

@@ -2,8 +2,8 @@ import { StateHandler, StateHandlerState } from "./StateHandler";
 /**
  * 
  * Hook to manage state with a handler class. The handler class must extend `StateHandler<T>`.  
- * Standalone hook, doesn't persist nor share state with other hooks.  
- * Do not modify the handler state directly. Use the handler setState method instead.
+ * Standalone hook, doesn't persist nor share state with other hooks.
+ * Do not modify the handler state directly. Use the handler setState method instead.  
  *
  * @template T - The type of the state.
  * @template H - The type of the handler class, which extends `StateHandler<T>`
@@ -17,8 +17,8 @@ declare function useHandler<T, S, H extends (StateHandler<T, S> | StateHandlerSt
 /**
  * 
  * Hook to manage state with a handler class. The handler class must extend `StateHandler<T>`.  
- * Standalone hook, doesn't persist nor share state with other hooks.  
- * Do not modify the handler state directly. Use the handler setState method instead.
+ * Standalone hook, doesn't persist nor share state with other hooks.
+ * Do not modify the handler state directly. Use the handler setState method instead.  
  *
  * @template T - The type of the state.
  * @template H - The type of the handler class, which extends `StateHandler<T>`
