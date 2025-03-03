@@ -332,8 +332,8 @@ This is a simple, classic-behavior hook that:
 * Have the advantages of:
   * Work with classes.
   * Merge state option.
-  * instanceCreated and instanceDeleted optional methods (in this case are equivalent to mount/unmount the component).
   * Wrap setState.
+  * instanceCreated and instanceDeleted optional methods (in this case are equivalent to mount/unmount the component).
 
 ```tsx
 import { StateHandler, useHandler } from "use-state-handler";
