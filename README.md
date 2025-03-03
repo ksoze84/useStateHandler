@@ -375,14 +375,14 @@ class CountHandlerTwo extends CountHandler {};
 You can write common functionality in a generic class and extend this class, adding the specifics. In this case, extending a parent generic class with StateHandler lets you encapsulate common functionality:
 
 
-MyApiHandler.ts : A handler for my API
+MyGenericApiHandler.ts : A handler for my API
 ```ts
 type ApiData = {
   data?: Record<string, any>[];
   isLoading: boolean;
 }
 
-export abstract class MyApiHandler extends StateHandler<ApiData>{
+export abstract class MyGenericApiHandler extends StateHandler<ApiData>{
 
   state : ApiData = {
     data: undefined,
@@ -423,9 +423,9 @@ export abstract class MyApiHandler extends StateHandler<ApiData>{
 MyComponent.tsx
 
 ```tsx
-import { MyApiHandler } from "./MyApiHandler";
+import { MyGenericApiHandler } from "./MyApiHandler";
 
-class SpecificApiHandler extends MyApiHandler { loadUri = 'https://myapi/specific' }
+class SpecificApiHandler extends MyGenericApiHandler { loadUri = 'https://myapi/specific' }
 
 export function MyComponent() {
 
@@ -492,7 +492,7 @@ This first checks if there are active state hook listeners active. If there isn'
 
 If you implement **instanceDeleted()**, remember that it is not the equivalent of an unmount component callback.
 
-This is not neccesary if the handler option destroyOnUnmount is true
+This is not neccesary if the handler option destroyOnUnmount is true, nor with useHandler standalone hook. 
 
 ```tsx
 export function App() {
