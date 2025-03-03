@@ -1,9 +1,4 @@
-import React from "react";
 export type SetStateType<T> = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => void;
-export declare const storage: Map<string, {
-    handler: StateHandler<any, any>;
-    listeners?: React.Dispatch<any>[] | undefined;
-}>;
 /**
  * Abstract class representing a state handler. This class should be extended to create a state handler.
  * The extended Class must be passed to the useStateHandler hook to work with React.

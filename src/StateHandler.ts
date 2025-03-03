@@ -23,11 +23,9 @@ SOFTWARE.
  */
 
 
-import React from "react";
+export type SetStateType<T> = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => void;
 
-type SetStateType<T> = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => void;
 
-export const storage = new Map<string, {handler : StateHandler<any, any>, listeners? : React.Dispatch<React.SetStateAction<any>>[]}>();
 
 /**
  * Abstract class representing a state handler. This class should be extended to create a state handler.  
@@ -81,7 +79,6 @@ export abstract class StateHandler<T, S = SetStateType<T>> {
   protected readonly _setState : SetStateType<T> = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => {
     const newState = value instanceof Function ? value(this.state as T) : value;
     this.state = (this._handlerConfig.merge ? { ...this.state, ...newState } : newState) as T;
-    storage.get(this.constructor.name)?.listeners?.forEach( l => l(this.state) );
   };
 
 
@@ -100,10 +97,7 @@ export abstract class StateHandler<T, S = SetStateType<T>> {
    * Logs a warn if there are active listeners and the instance is not deleted.
    */
   public destroyInstance = () => {
-    if ((storage.get(this.constructor.name)?.listeners?.length ?? 0) === 0) {
-      storage.delete(this.constructor.name);
       this.instanceDeleted?.(); 
-    }
   };
 
   /**
@@ -114,7 +108,7 @@ export abstract class StateHandler<T, S = SetStateType<T>> {
    * @param state - The initial state.
    */
   constructor(state?: T) {
-    if (!this.state && state) this.state = state;
+    if (state !== undefined) this.state = state;
   }
 
 }

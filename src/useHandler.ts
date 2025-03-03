@@ -23,12 +23,25 @@ SOFTWARE.
  */
 
 
-import React, { useEffect } from "react";
-import { StateHandler, StateHandlerState } from "./StateHandler";
-import { initHandler, mountLogic } from "./common";
+import React from "react";
+import {  StateHandler, StateHandlerState } from "./StateHandler";
 
-function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value : J | (() => J)) : Readonly<[T, H]>
-function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value? : J | (() => J)) : Readonly<[ H extends StateHandlerState<T, S> ? T : T | undefined, H]>
+function initSimpleHandler<T, S, H extends (StateHandler<T, S> | StateHandlerState<T, S>)>(handlerClass: new (s?: T) => H, initial_value: T | (() => T), getSetState: () => React.Dispatch<React.SetStateAction<T>>) {
+  const handler = new handlerClass(initial_value instanceof Function ? initial_value() : initial_value);
+
+  const ssHolder = (handler as Record<string, any>)._setState;
+  (handler as Record<string, any>)._setState = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => {
+    ssHolder(value);
+    getSetState()(handler.state as T);
+  };
+
+  (handler as Record<string, any>).setState = (handler as Record<string, any>)._setState;
+
+  return handler;
+}
+
+function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value : J | (() => J)) : Readonly<[T, H]>
+function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value? : J | (() => J)) : Readonly<[ H extends StateHandlerState<T, S> ? T : T | undefined, H]>
 
 /**
  * 
@@ -45,13 +58,14 @@ function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T
  * 
  * @returns A readonly tuple containing the current state and the handler instance.
  */
-function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value: J | (() => J)  )  : Readonly<[T | undefined, H]>  {
-  const handler                     = initHandler<T, S, H>( handlerClass, initial_value );
-  const [state, setState]           = React.useState<T>( handler.state as T );    
+function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value: J | (() => J)) : Readonly<[T | undefined, H]>  {
+  const [handler, ]                   = React.useState<StateHandler<T, S>>( () : H => initSimpleHandler<T, S, H>(handlerClass, initial_value, () => setState ) );
+  const [state, setState]             = React.useState<T>( handler.state as T );    
   
-  useEffect( () => mountLogic( setState, handlerClass ), [] );
 
-  return [ state, handler ];
+  return [ state, handler as H ];
 }
 
-export { useStateHandler };
+export { useHandler };
+
+
