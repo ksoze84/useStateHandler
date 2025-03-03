@@ -108,7 +108,7 @@ export abstract class StateHandler<T, S = SetStateType<T>> {
    * @param state - The initial state.
    */
   constructor(state?: T) {
-    if (state) this.state = state;
+    if (state !== undefined) this.state = state;
   }
 
 }

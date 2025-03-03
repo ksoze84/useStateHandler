@@ -27,8 +27,8 @@ import React, { useEffect } from "react";
 import { StateHandler, StateHandlerState } from "./StateHandler";
 import { initHandler, mountLogic } from "./common";
 
-function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, initial_value : T | (() => T)) : Readonly<[T, H]>
-function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, initial_value? : T | (() => T)) : Readonly<[ H extends StateHandlerState<T, S> ? T : T | undefined, H]>
+function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value : J | (() => J)) : Readonly<[T, H]>
+function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value? : J | (() => J)) : Readonly<[ H extends StateHandlerState<T, S> ? T : T | undefined, H]>
 
 /**
  * 
@@ -45,7 +45,7 @@ function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T
  * 
  * @returns A readonly tuple containing the current state and the handler instance.
  */
-function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, initial_value: T | (() => T)) : Readonly<[T | undefined, H]>  {
+function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value: J | (() => J)  )  : Readonly<[T | undefined, H]>  {
   const handler                     = initHandler<T, S, H>( handlerClass, initial_value );
   const [state, setState]           = React.useState<T>( handler.state as T );    
   

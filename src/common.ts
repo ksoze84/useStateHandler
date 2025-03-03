@@ -59,8 +59,14 @@ export function initHandler<T, S, H extends (StateHandler<T, S>|StateHandlerStat
     
     return handler;
   }
-  else
-    return storage.get( handlerClass.name )?.handler as H;
+  else{
+    const handler = storage.get( handlerClass.name )?.handler as H;
+    if((handler as Record<string, any>).__properInitdHndl === false && initial_value !== undefined){ 
+      handler.state = initial_value instanceof Function ? initial_value() : initial_value;
+      (handler as Record<string, any>).__properInitdHndl = true;
+    }
+    return handler
+  }
 }
 
 
@@ -86,5 +92,11 @@ export function unmountLogic<T, S>( dispatcher: React.Dispatch<React.SetStateAct
 }
 
 export function getHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H ) : H {
-  return storage.get( handlerClass.name )?.handler as H;
+  if ( storage.has( handlerClass.name ) )
+    return storage.get( handlerClass.name )!.handler as H;
+  else{
+    const handler = initHandler<T, S, H>( handlerClass );
+    (handler as Record<string, any>).__properInitdHndl = false;
+    return handler;
+  }
 }

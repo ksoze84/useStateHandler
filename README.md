@@ -1,9 +1,9 @@
-# Deez & GlaDeez
+# State Handler
 
 Simple class based hook and state manager for React.  
 
 KeyPoints: 
-* Keep the React paradigm; only mind this hook is persistent. If you are familiar with class components, you will be familiar with this as well.
+* Keep the React paradigm. If you are familiar with class components, you will be familiar with this as well.
 * Work with classes.
 * Maintain a unique instance of the handler class on memory accross your application. 
 * Share the state and the methods to update it between components.
@@ -51,12 +51,14 @@ function Counter() {
 - [Installation](#installation)
 - [How to use](#how-to-use)
 - [Rules](#rules)
+- [useHandler, the standalone hook](#usehandler-the-standalone-hook)
 - [State initialization](#state-initialization)
 - [instanceCreated() function](#instancecreated-function)
 - [Get the instance with getHandler()](#get-the-instance-with-gethandler)
 - [Handler Configuration](#handler-configuration)
   - [Merging the state](#merging-the-state)
 - [usePartialHandler to update only when a determined subset of state properties changes](#usepartialhandler-to-update-only-when-a-determined-subset-of-state-properties-changes)
+  - [You can also use Selectors \[with derived data\] or a compare function with usePartialState](#you-can-also-use-selectors-with-derived-data-or-a-compare-function-with-usepartialstate)
 - [Working with Classes](#working-with-classes)
   - [Reutilizing classes](#reutilizing-classes)
   - [Extendibility and Inheritance](#extendibility-and-inheritance)
@@ -88,6 +90,39 @@ npm install use-state-handler --save
 * The class name is the key for this software to work as expected. Never use the same name for state handler classes even if they are declared in different scopes.
 
 
+## useHandler, the standalone hook
+
+This is a simple, classic-behavior hook that:
+* does not persist.
+* does not share its state with other components.
+* does not work alongside usePartialHandler, getHandler nor useStateHandler.
+* More performant than this other hooks.
+* It does have the other advantages of working with classes.
+
+
+
+```tsx
+import { StateHandler, useHandler } from "use-state-handler";
+
+class CountHandler extends StateHandler<number> {
+  public add      = () => this.setState( s => s + 1 );
+  public subtract = () => this.setState( s => s - 1 );
+  public reset    = () => this.setState( 0 );
+}
+
+function Counter() {
+  const [count, {add, subtract}] = useHandler(CountHandler, 0);
+
+  return (
+    <div>
+      <span>{count}</span>
+      <button onClick={add}>+</button>
+      <button onClick={subtract}>-</button>
+    </div>
+  );
+}
+```
+
 ## State initialization
 
 You can set an initial state in the class definition or pass an initial value on the hook. You should not initialize the state with both methods, but if you do, the initial value on the hook will prevail.
@@ -95,7 +130,6 @@ You can set an initial state in the class definition or pass an initial value on
 Prefer setting the state in the class definition for easier readability.
 
 ```tsx
-
 class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
   state = {
     chairs: 0,
@@ -126,7 +160,6 @@ Optional handler method that is called only once when an instance is created. If
 This method has NOT the same behavior as mount callback of a component in React. The only way this method is called again by the hook is by destroying the instance first with destroyInstance().
 
 ```tsx
-
 class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
   state = {
     chairs: 0,
@@ -138,7 +171,6 @@ class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:num
     fetch('https://myapi.com/counters').then( r => r.json() ).then( r => this.setState(r) );
   }
 }
-
 ```
 
 ## Get the instance with getHandler()
@@ -148,7 +180,6 @@ You can get the instance of your Handler using getHandler() utility method, main
 * To use the handler outside react
 
 ```tsx
-
 class CountHandler extends StateHandler<number> {
   state = 0;
 
@@ -181,14 +212,11 @@ function Controls() {
 export function App() {
   return (
     <div>
-        <Counter />
-        <Controls />
+      <Controls />
+      <Counter />
     </div>
   );
 }
-
-
-
 ```
 
 
@@ -199,10 +227,8 @@ You may configure the handler by setting the optional property _handlerConfig in
 * destroyOnUnmount : Tries to delete the instance in each unmount of each component. Is successfully deleted if there are no active listeners (other components using it).
 
 ```tsx
-
 //default:
  _handlerConfig = { merge : false, destroyOnUnmount : false }
-
 ```
 
 ### Merging the state
@@ -210,7 +236,6 @@ You may configure the handler by setting the optional property _handlerConfig in
 Overwrite the state is the default mode on hanlder.setState, but you can configure the handler to merge. This example is specially usefull for refactor old class components:
 
 ```tsx
-
 class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
   state = {
     chairs: 0,
@@ -248,7 +273,6 @@ function Tables() {
     <button onClick={subtractTables}>-</button>
   </>
 }
-
 ```
 **Note that the useStateHandler hook will trigger re-render for any part of the state changed. In the example above, Tables component will re-render if the chairs value is changed. This behavior can be optimized with usePartialHandler hook.**  
 **Merging mode is only for non-undefined objects, and there is no check of any kind for this before doing it, so its on you to guarantee an initial and always state object.**
@@ -279,7 +303,6 @@ class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:num
   addTables = () => this.setState( t => ({tables: t.tables + 1}) );
   subtractTables = () => this.setState( t => ({tables: t.tables - 1}) );
 
-  resetAll = () => this.setState( { chairs: 0, tables : 0 } );
 }
 
 function Chairs() {
@@ -301,9 +324,35 @@ function Tables() {
     <button onClick={subtractTables}>-</button>
   </>
 }
-
 ```
 
+### You can also use Selectors [with derived data] or a compare function with usePartialState
+
+this example has the same behaviour of previous example:
+```tsx
+...
+
+function Chairs() {
+  const [{chairs},{addChairs, subtractChairs}] = usePartialHandler(CountHandler, (prevState, nextState) => prevState.chairs !== nextState.chairs ); // this component re-renders only if function returns true
+
+  return <>
+    <span>Chairs: {chairs}</span>
+    <button onClick={addChairs}>+</button>
+    <button onClick={subtractChairs}>-</button>
+  </> 
+}
+
+function Tables() {
+  //here tables is a string
+  const [tables, {addTables, subtractTables}] = usePartialHandler(CountHandler, ( s ) => s.tables.toString() ); // this component re-renders only if it's tables.toString() changes
+
+  return <>
+    <span>Tables: {tables}</span>
+    <button onClick={addTables}>+</button>
+    <button onClick={subtractTables}>-</button>
+  </>
+}
+```
 
 ## Working with Classes
 
@@ -314,7 +363,6 @@ One way to use your class again with this hook without duplicating code is to ex
 
 ```ts
 class CountHandlerTwo extends CountHandler {};
-
 ```
 
 ### Extendibility and Inheritance
@@ -324,7 +372,6 @@ You can write common functionality in a generic class and extend this class, add
 
 MyApiHandler.ts : A handler for my API
 ```ts
-
 type ApiData = {
   data?: Record<string, any>[];
   isLoading: boolean;
@@ -366,7 +413,6 @@ export abstract class MyApiHandler extends StateHandler<ApiData>{
   }
 
 }
-
 ```
 
 MyComponent.tsx
@@ -384,7 +430,6 @@ export function MyComponent() {
 
   return ( ... );
 }
-
 ```
 
 
@@ -427,7 +472,6 @@ function Tables() {
     <button onClick={() => setState( s => { s.tables-- } )}>-</button>
   </>
 }
-
 ```
 
 
@@ -457,7 +501,6 @@ export function App() {
 
  ...
 }
-
 ```
 
 ## Constructor
@@ -471,7 +514,6 @@ constructor( initialState? : T ) {
   super(initialState);
   //your code
 }
-
 ```
 
 Constructor code of the class and its inherited instances constructors are not part of the mounting/unmounting logic of react. Hook state listeners may or may not be ready when the code executes. 

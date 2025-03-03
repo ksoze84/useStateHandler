@@ -40,8 +40,8 @@ function initSimpleHandler<T, S, H extends (StateHandler<T, S> | StateHandlerSta
   return handler;
 }
 
-function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, initial_value : T | (() => T)) : Readonly<[T, H]>
-function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, initial_value? : T | (() => T)) : Readonly<[ H extends StateHandlerState<T, S> ? T : T | undefined, H]>
+function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value : J | (() => J)) : Readonly<[T, H]>
+function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value? : J | (() => J)) : Readonly<[ H extends StateHandlerState<T, S> ? T : T | undefined, H]>
 
 /**
  * 
@@ -58,7 +58,7 @@ function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)
  * 
  * @returns A readonly tuple containing the current state and the handler instance.
  */
-function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, initial_value: T | (() => T)) : Readonly<[T | undefined, H]>  {
+function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value: J | (() => J)) : Readonly<[T | undefined, H]>  {
   const [handler, ]                   = React.useState<StateHandler<T, S>>( () : H => initSimpleHandler<T, S, H>(handlerClass, initial_value, () => setState ) );
   const [state, setState]             = React.useState<T>( handler.state as T );    
   
