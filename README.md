@@ -98,9 +98,11 @@ This is a simple, classic-behavior hook that:
 * Isolates the instance; the state is not shared with other components using the same class nor the same remounted component.
 * This hook does not work alongside usePartialHandler, getHandler nor useStateHandler, because these persist the instance.
 * More performant than these other hooks.
-* It does have the other advantages of working with classes.
-
-
+* Have the advantages of:
+  * Work with classes.
+  * Merge state option.
+  * instanceCreated and instanceDeleted optional methods (in this case are equivalent to mount/unmount the component).
+  * Wrap setState.
 
 ```tsx
 import { StateHandler, useHandler } from "use-state-handler";

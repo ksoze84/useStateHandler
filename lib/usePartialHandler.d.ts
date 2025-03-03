@@ -17,7 +17,7 @@ export declare function checkDepsSetter<T, F>(dispatcher: React.Dispatch<React.S
  * @param depsArray - An array of keys of the state or function that will trigger a re-render when changed.
  * @param initial_value - Optional. The initial value of the state, which can be a value of type `T` or a function that returns a value of type `T`.
  * 
- * @returns A readonly tuple containing the current state and the handler instance.
+ * @returns A readonly tuple containing the current [derived]state and the handler instance.
  */
 declare function usePartialHandler<T, S, H extends (StateHandler<T, S> | StateHandlerState<T, S>), J extends T>(handlerClass: new (s?: T) => H, depsArray: Array<keyof T> | CompareFunction<T>, initial_value: J | (() => J)): Readonly<[T, H]>;
 /**
@@ -34,7 +34,7 @@ declare function usePartialHandler<T, S, H extends (StateHandler<T, S> | StateHa
  * @param depsArray - An array of keys of the state or function that will trigger a re-render when changed.
  * @param initial_value - Optional. The initial value of the state, which can be a value of type `T` or a function that returns a value of type `T`.
  * 
- * @returns A readonly tuple containing the current state and the handler instance.
+ * @returns A readonly tuple containing the current [derived]state and the handler instance.
  */
 declare function usePartialHandler<T, S, H extends (StateHandler<T, S> | StateHandlerState<T, S>), J extends T>(handlerClass: new (s?: T) => H, depsArray: Array<keyof T> | CompareFunction<T>, initial_value?: J | (() => J)): Readonly<[H extends StateHandlerState<T, S> ? T : T | undefined, H]>;
 /**
@@ -51,7 +51,7 @@ declare function usePartialHandler<T, S, H extends (StateHandler<T, S> | StateHa
  * @param depsArray - An array of keys of the state or function that will trigger a re-render when changed.
  * @param initial_value - Optional. The initial value of the state, which can be a value of type `T` or a function that returns a value of type `T`.
  * 
- * @returns A readonly tuple containing the current state and the handler instance.
+ * @returns A readonly tuple containing the current [derived]state and the handler instance.
  */
 declare function usePartialHandler<T, S, F, H extends (StateHandler<T, S> | StateHandlerState<T, S>), J extends T>(handlerClass: new (s?: T) => H, depsArray: SelectorFunction<T, F>, initial_value?: J | (() => J)): Readonly<[F, H]>;
 export { usePartialHandler };

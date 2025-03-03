@@ -91,7 +91,7 @@ function usePartialHandler<T, S, F, H extends (StateHandler<T, S>|StateHandlerSt
  * @param depsArray - An array of keys of the state that will trigger a re-render when changed.
  * @param initial_value - Optional. The initial value of the state, which can be a value of type `T` or a function that returns a value of type `T`.
  * 
- * @returns A readonly tuple containing the current state and the handler instance.
+ * @returns A readonly tuple containing the current [derived]state and the handler instance.
  */
 function usePartialHandler<T, S, F, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, depsArray : Array<keyof T> | SelectorFunction<T, F> | CompareFunction<T>, initial_value: J | (() => J)) : Readonly<[T | F | undefined, H]>  {
   const handler                   = initHandler<T, S, H>( handlerClass, initial_value );
