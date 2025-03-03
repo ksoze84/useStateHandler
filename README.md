@@ -201,7 +201,7 @@ You may configure the handler by setting the optional property _handlerConfig in
 
 ### Merging the state
 
-Overwrite the state is the default mode on hanlder.setState, but you can configure the handler to merge. This example is specially usefull for refactor old class components:
+Overwrite the state is the default mode on hanlder.setState, but you can configure the handler to merge. This can be usefull for refactor old class components.
 
 ```tsx
 class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
@@ -213,10 +213,10 @@ class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:num
 
   _handlerConfig = { merge : true }
 
-  addChairs = () => this.setState( c =>( { chairs: c.chairs + 1 }) );
+  addChairs = () => this.setState( c => ( { chairs: c.chairs + 1 }) );
   subtractChairs = () => this.setState( c => ({chairs : c.chairs - 1}) );
 
-  addTables = () => this.setState( t => ({tables: t.tables + 1}) );
+  addTables = () => this.setState( t => ({ tables: t.tables + 1 }) );
   subtractTables = () => this.setState( t => ({tables: t.tables - 1}) );
 
   resetAll = () => this.setState( { chairs: 0, tables : 0 } );
