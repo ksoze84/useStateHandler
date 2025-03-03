@@ -59,7 +59,7 @@ function Counter() {
 - [Handler Configuration](#handler-configuration)
   - [Merging the state](#merging-the-state)
 - [usePartialHandler to update only when a determined subset of state properties changes](#usepartialhandler-to-update-only-when-a-determined-subset-of-state-properties-changes)
-  - [You can also use Selectors \[with derived data\] or a compare function with usePartialState](#you-can-also-use-selectors-with-derived-data-or-a-compare-function-with-usepartialstate)
+  - [You can also use selectors \[with derived data\] or a compare function with usePartialState](#you-can-also-use-selectors-with-derived-data-or-a-compare-function-with-usepartialstate)
 - [useHandler: the standalone hook](#usehandler-the-standalone-hook)
 - [Working with Classes](#working-with-classes)
   - [Reutilizing classes](#reutilizing-classes)
@@ -89,7 +89,7 @@ npm install use-state-handler --save
 * Never set Handler.state directly; it is read only!
 * You may save another data in the class, but beware of component state updates signaling and mounting logics if this data mutates over time.
 * Do not manipulate state directly in the constructor.
-* The class name is the key for this software to work as expected. Never use the same name for state handler classes even if they are declared in different scopes.
+* The class name is the key for this software to work as expected. Never use the same name for different state handler classes even if they are declared in different scopes.
 
 ## State initialization
 
@@ -156,16 +156,6 @@ class CountHandler extends StateHandler<number> {
   public reset    = () => this.setState( 0 );
 }
 
-function Counter() {
-  const [count] = useStateHandler(CountHandler);
-
-  return (
-    <div>
-      <span>{count}</span>
-    </div>
-  );
-}
-
 function Controls() {
   const {add, subtract} = getHandler(CountHandler);
 
@@ -173,6 +163,16 @@ function Controls() {
     <div className="buttons">
       <button onClick={add}>+</button>
       <button onClick={subtract}>-</button>
+    </div>
+  );
+}
+
+function Counter() {
+  const [count] = useStateHandler(CountHandler);
+
+  return (
+    <div>
+      <span>{count}</span>
     </div>
   );
 }
@@ -247,9 +247,9 @@ function Tables() {
 
 ## usePartialHandler to update only when a determined subset of state properties changes
 
-When a non-undefined object with many properties is used as state, the useStateHandler hook will trigger re-render for any part of the state changed, even if only the component is using only one of the properties. This can be optimized using the provided usePartialHandler hook, which performs a shallow comparison. It is more suitable if the merge state option is set to true.
+When a non-undefined object with many properties is used as state, the useStateHandler hook will trigger re-render for any part of the state changed, even if the component is using only one of the properties. This can be optimized using the provided usePartialHandler hook, which performs a shallow comparison. It is more suitable if the merge state option is set to true.
 
-The usage of this hook is identical to useStateHandler, but the second argument must be a non-empty array of strings with the state property names. An initial state can be defined as a third argument. 
+The usage of this hook is identical to useStateHandler, but the second argument must be a non-empty array of strings with the state property names, a selector function or a comparator function. An initial state can be defined as a third argument. 
 
 **Use only if you have performance problems; this hook avoids some unnecessary re-renders but introduces a dependency array of comparisons. Always prefer useStateHandler first.**
 
@@ -294,7 +294,7 @@ function Tables() {
 }
 ```
 
-### You can also use Selectors [with derived data] or a compare function with usePartialState
+### You can also use selectors [with derived data] or a compare function with usePartialState
 
 this example has the same behaviour of previous example:
 ```tsx
@@ -327,6 +327,7 @@ function Tables() {
 This is a simple, classic-behavior hook that:
 * Makes an instance for each component using the class; instance does not persist.
 * Isolates the instance; the state is not shared with other components using the same class nor the same remounted component.
+* ( Yes, like a normal hook does, this is just a simple custom hook ) 
 * Uses the same classes you already have.
 * **This hook does not work alongside usePartialHandler, getHandler nor useStateHandler, because these persist the instance.**
 * More performant than these other hooks.
@@ -439,7 +440,7 @@ export function MyComponent() {
 
 ## Your own setState function
 
-setState() is only a wrapper for the actual _setState() function. You can directly modify it in Javascript; in Typescript, you need to define the setState type as a second generic type of the handler class.
+setState() is just a wrapper for the actual _setState() function. You can directly modify it in Javascript; in Typescript, you need to define the setState type as a second generic type of the handler class.
 
 ### Example with immer:
 ```tsx
