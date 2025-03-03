@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-import { StateHandler } from "./base";
+import { StateHandler } from "./StateHandler";
 import { getHandler } from "./common";
 import { useStateHandler } from "./useStateHandler";
 import { usePartialHandler } from "./usePartialHandler";

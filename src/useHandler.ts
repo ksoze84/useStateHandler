@@ -24,7 +24,21 @@ SOFTWARE.
 
 
 import React from "react";
-import {  StateHandler, StateHandlerState } from "./base";
+import {  StateHandler, StateHandlerState } from "./StateHandler";
+
+function initSimpleHandler<T, S, H extends (StateHandler<T, S> | StateHandlerState<T, S>)>(handlerClass: new (s?: T) => H, initial_value: T | (() => T), getSetState: () => React.Dispatch<React.SetStateAction<T>>) {
+  const handler = new handlerClass(initial_value instanceof Function ? initial_value() : initial_value);
+
+  const ssHolder = (handler as Record<string, any>)._setState;
+  (handler as Record<string, any>)._setState = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => {
+    ssHolder(value);
+    getSetState()(handler.state as T);
+  };
+
+  (handler as Record<string, any>).setState = (handler as Record<string, any>)._setState;
+
+  return handler;
+}
 
 function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, initial_value : T | (() => T)) : Readonly<[T, H]>
 function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, initial_value? : T | (() => T)) : Readonly<[ H extends StateHandlerState<T, S> ? T : T | undefined, H]>
@@ -46,27 +60,12 @@ function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)
  */
 function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, initial_value: T | (() => T)) : Readonly<[T | undefined, H]>  {
   const [handler, ]                   = React.useState<StateHandler<T, S>>( () : H => initSimpleHandler<T, S, H>(handlerClass, initial_value, () => setState ) );
-  const [state, setState]             = React.useState<T>( (initial_value instanceof Function ? initial_value() : initial_value) ?? handler.state as T );    
+  const [state, setState]             = React.useState<T>( handler.state as T );    
   
 
   return [ state, handler as H ];
 }
 
-
-
-
-
 export { useHandler };
 
-function initSimpleHandler<T, S, H extends (StateHandler<T, S> | StateHandlerState<T, S>)>(handlerClass: new (s?: T) => H, initial_value: T | (() => T), getSetState: () => React.Dispatch<React.SetStateAction<T>>) {
-  const handler = new handlerClass(initial_value instanceof Function ? initial_value() : initial_value);
 
-  (handler as Record<string, any>)._setState = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => {
-    const newState = value instanceof Function ? value(handler.state as T) : value;
-    handler.state = ((handler as Record<string, any>)._handlerConfig?.merge ? { ...handler.state, ...newState } : newState) as T;
-    getSetState()(handler.state);
-  };
-  (handler as Record<string, any>).setState = (handler as Record<string, any>)._setState;
-
-  return handler;
-}
