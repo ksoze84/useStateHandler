@@ -46,9 +46,8 @@ function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)
 /**
  * 
  * Hook to manage state with a handler class. The handler class must extend `StateHandler<T>`.  
- * This hook will maintain only one instance of the class per application at a time and will be shared between all components that use the [useStateHandler Hook, Class] pair, saving its state.  
+ * Standalone hook, doesn't persist nor share state with other hooks.
  * Do not modify the handler state directly. Use the handler setState method instead.  
- * Unmounting components will not necessarily affect the instance nor its state.
  *
  * @template T - The type of the state.
  * @template H - The type of the handler class, which extends `StateHandler<T>`
