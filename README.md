@@ -8,7 +8,7 @@ KeyPoints:
 * Persist the state & handler instance : 
   * Maintain a unique instance of the handler class on memory accross your application. 
   * Share the state and the methods to update it between components.
-* Or don't persist anything if you use the standalone hook
+* Or don't persist anything using the standalone hook.
 * You write the class, the hook manages the rest.
 * Heavy functions are not instantiated in every render. Minimize overhead by avoiding useCallback, useReducer, useMemo, and dependency arrays.
 * Helps to separate logic from render.
@@ -64,9 +64,9 @@ function Counter() {
 - [Working with Classes](#working-with-classes)
   - [Reutilizing classes](#reutilizing-classes)
   - [Extendibility and Inheritance](#extendibility-and-inheritance)
-- [Your Own setState function](#your-own-setstate-function)
+- [Your own setState function](#your-own-setstate-function)
   - [Example with immer:](#example-with-immer)
-  - [Or you can only change the accessibility modifier of setState](#or-you-can-only-change-the-accessibility-modifier-of-setstate)
+  - [Or may be you just want to change the setState() accessibility modifier](#or-may-be-you-just-want-to-change-the-setstate-accessibility-modifier)
 - [Destroying the instance](#destroying-the-instance)
 - [Constructor](#constructor)
 
@@ -249,7 +249,7 @@ function Tables() {
 
 When a non-undefined object with many properties is used as state, the useStateHandler hook will trigger re-render for any part of the state changed, even if only the component is using only one of the properties. This can be optimized using the provided usePartialHandler hook, which performs a shallow comparison. It is more suitable if the merge state option is set to true.
 
-The usage of this hook is identical to useStateHandler, but the second argument must be a non-empty array of strings with the state property names. An initial state can be defined in the third argument. 
+The usage of this hook is identical to useStateHandler, but the second argument must be a non-empty array of strings with the state property names. An initial state can be defined as a third argument. 
 
 **Use only if you have performance problems; this hook avoids some unnecessary re-renders but introduces a dependency array of comparisons. Always prefer useStateHandler first.**
 
@@ -327,12 +327,13 @@ function Tables() {
 This is a simple, classic-behavior hook that:
 * Makes an instance for each component using the class; instance does not persist.
 * Isolates the instance; the state is not shared with other components using the same class nor the same remounted component.
-* This hook does not work alongside usePartialHandler, getHandler nor useStateHandler, because these persist the instance.
+* Uses the same classes you already have.
+* **This hook does not work alongside usePartialHandler, getHandler nor useStateHandler, because these persist the instance.**
 * More performant than these other hooks.
 * Have the advantages of:
   * Work with classes.
   * Merge state option.
-  * Wrap setState.
+  * Your own setState ( _setState() wrapper ).
   * instanceCreated and instanceDeleted optional methods (in this case are equivalent to mount/unmount the component).
 
 ```tsx
@@ -361,7 +362,7 @@ function Counter() {
 
 ### Reutilizing classes
 
-Classes are made for reutilization, making new instances from these. But in this case, the instance creation is managed by the hook, and it maintains only one instance per class name. 
+Classes are made for reutilization, making new object instances from these. But in this case, the instance creation is managed by the hook, and it maintains only one instance per class name. 
 One way to use your class again with this hook without duplicating code is to extend it:
 
 ```ts
@@ -436,9 +437,9 @@ export function MyComponent() {
 ```
 
 
-## Your Own setState function
+## Your own setState function
 
-setState() is only a wrapper for the actual _setState() function. You can directly modify it in Javascript; in Typescript, you need to define the setState type as a second generic type of the class.
+setState() is only a wrapper for the actual _setState() function. You can directly modify it in Javascript; in Typescript, you need to define the setState type as a second generic type of the handler class.
 
 ### Example with immer:
 ```tsx
@@ -478,7 +479,7 @@ function Tables() {
 ```
 
 
-### Or you can only change the accessibility modifier of setState
+### Or may be you just want to change the setState() accessibility modifier
 ```tsx
 public setState = this._setState
 ```
