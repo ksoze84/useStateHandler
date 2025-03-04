@@ -15,6 +15,7 @@ KeyPoints:
 * Helps to separate logic from render.
 * Minimal and simple code. Small footprint and low impact in React's cycles. ( < 5kB minified ).
 
+This readme [looks better in gitHub](https://github.com/ksoze84/useStateHandler?tab=readme-ov-file#state-handler)
 
 ## Basic Example
 
@@ -329,7 +330,7 @@ function Tables() {
 ## useHandler: the standalone hook
 
 This is a simple, classic-behavior hook that:
-* Makes an instance for each component using the class; instance does not persist.
+* Creates an instance of the handler for each component using the class; instance does not persist.
 * Isolates the instance; the state is not shared with other components using the same class nor the same remounted component.
 * ( Yes, like a normal hook does, this is just a simple custom hook ) 
 * Uses the same classes you already have.
