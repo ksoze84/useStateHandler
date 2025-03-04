@@ -9,7 +9,7 @@ KeyPoints:
   * Maintain a unique instance of the handler class on memory accross your application. 
   * Share the state and the methods to update it between components.
   * Two ways to avoid unnecessary re-renders on related components: getHandler() and usePartialState()
-* Or don't persist anything using the standalone hook.
+* Or don't persist anything using [the standalone hook](#usehandler-the-standalone-hook).
 * You write the class, the hook manages the rest.
 * Heavy functions are not instantiated in every render. Minimize overhead by avoiding useCallback, useReducer, useMemo, and dependency arrays.
 * Helps to separate logic from render.
