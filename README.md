@@ -8,13 +8,13 @@ KeyPoints:
 * Persist the state & handler instance : 
   * Maintain a unique instance of the handler class on memory accross your application. 
   * Share the state and the methods to update it between components.
+  * Two way to avoid unnecesary re-rendersm on related components: getHandler() and usePartialState()
 * Or don't persist anything using the standalone hook.
 * You write the class, the hook manages the rest.
 * Heavy functions are not instantiated in every render. Minimize overhead by avoiding useCallback, useReducer, useMemo, and dependency arrays.
 * Helps to separate logic from render.
 * Minimal and simple code. Small footprint and low impact in React's cycles. ( < 5kB minified ).
 
-This is not a hook meant to replace useState, but rather to be used alongside another hooks, like useState, but mostly with useEffect to control the handler when components mount/unmount.
 
 ## Basic Example
 
@@ -143,9 +143,13 @@ class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:num
 
 ## Get the instance with getHandler()
 
-You can get the instance of your Handler using getHandler() utility method, mainly for two things:
+Get the instance of your Handler using getHandler() utility method. This method is not a hook, so it never triggers a new render. 
+
+Yuo can use this method mainly for two things:
 * To use handler actions without triggering re-renders in "control-only" components
 * To use the handler outside react
+
+
 
 ```tsx
 class CountHandler extends StateHandler<number> {
