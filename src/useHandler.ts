@@ -29,13 +29,8 @@ import {  StateHandler, StateHandlerState } from "./StateHandler";
 function initSimpleHandler<T, S, H extends (StateHandler<T, S> | StateHandlerState<T, S>)>(handlerClass: new (s?: T) => H, initial_value: T | (() => T), getSetState: () => React.Dispatch<React.SetStateAction<T>>) {
   const handler = new handlerClass(initial_value instanceof Function ? initial_value() : initial_value);
 
-  const ssHolder = (handler as Record<string, any>)._setState;
-  (handler as Record<string, any>)._setState = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => {
-    ssHolder(value);
-    getSetState()(handler.state as T);
-  };
-
-  (handler as Record<string, any>).setState = (handler as Record<string, any>)._setState;
+  (handler as Record<string, any>).__handlerDispatcher = (s : T) => getSetState()(s);
+  (handler as Record<string, any>).destroyInstance = () => handler["instanceDeleted"]?.();
 
   return handler;
 }
@@ -50,6 +45,7 @@ function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)
  * Do not modify the handler state directly. Use the handler setState method instead.  
  *
  * @template T - The type of the state.
+ * @template S - The type of the setState.
  * @template H - The type of the handler class, which extends `StateHandler<T>`
  * 
  * @param handlerClass - The class of the handler to be used for managing state.
@@ -59,14 +55,14 @@ function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)
  */
 function useHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value: J | (() => J)) : Readonly<[T | undefined, H]>  {
   const [handler, ]                   = React.useState<StateHandler<T, S>>( () : H => initSimpleHandler<T, S, H>(handlerClass, initial_value, () => setState ) );
-  const [state, setState]             = React.useState<T>( handler.state as T );    
+  const [, setState]             = React.useState<T>( handler.state as T );    
   
   useEffect(() => {
     handler["instanceCreated"]?.();
     return () => handler.destroyInstance()
   })
 
-  return [ state, handler as H ];
+  return [ handler.state, handler as H ];
 }
 
 export { useHandler };

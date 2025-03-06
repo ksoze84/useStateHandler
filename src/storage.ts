@@ -26,36 +26,14 @@ import { StateHandler, StateHandlerState } from "./StateHandler";
 
 export const storage = new Map<string, {handler : StateHandler<any, any>, listeners? : React.Dispatch<React.SetStateAction<any>>[]}>();
 
-/**
- * Gets the instance of the handler class.  
- * This is not a hook. It will not trigger re-renders when used in components.
- * 
- * @template T - The type of the state.
- * @template H - The type of the StateHandler class.
- * @param handlerClass - The constructor of the StateHandler class.
- * @returns The instance of the StateHandler class.
- */
 export function initHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H, initial_value? : T | (() => T) ) : H {
   if ( !storage.has( handlerClass.name ) ) {
     const handler = new handlerClass( initial_value instanceof Function ? initial_value() : initial_value );
-    storage.set( handlerClass.name, {handler} );
     
-    const ssHolder = (handler as Record<string, any>)._setState;
-    const delHolder = (handler as Record<string, any>).destroyInstance;
+    storage.set( handlerClass.name, {handler} );
 
-    (handler as Record<string, any>)._setState = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => {
-      ssHolder( value );
-      storage.get( handlerClass.name )?.listeners?.forEach( l => l( handler.state ) );
-    };
-
-    (handler as Record<string, any>).setState = (handler as Record<string, any>)._setState;
-
-    (handler as Record<string, any>).destroyInstance = () => {
-      if ((storage.get(handlerClass.name)?.listeners?.length ?? 0) === 0) {
-        storage.delete(handlerClass.name);
-        delHolder();
-      }
-    }
+    (handler as Record<string, any>).__handlerDispatcher = (s : T) => storage.get( handlerClass.name )?.listeners?.forEach( l => l( s ) );
+    (handler as Record<string, any>).destroyInstance = () => destroyInstance( handler );
     
     return handler;
   }
@@ -66,6 +44,13 @@ export function initHandler<T, S, H extends (StateHandler<T, S>|StateHandlerStat
       (handler as Record<string, any>).__properInitdHndl = true;
     }
     return handler
+  }
+}
+
+function destroyInstance<T, S>( handler : StateHandler<T, S>|StateHandlerState<T, S> ) {
+  if ((storage.get(handler.constructor.name)?.listeners?.length ?? 0) === 0) {
+    storage.delete(handler.constructor.name);
+    handler["instanceDeleted"]?.();
   }
 }
 
@@ -91,6 +76,17 @@ export function unmountLogic<T, S>( dispatcher: React.Dispatch<React.SetStateAct
   }
 }
 
+
+/**
+ * Gets the instance of the handler class.  
+ * This is not a hook. It will not trigger re-renders when used in components.
+ * 
+ * @template T - The type of the state.
+ * @template S - The type of the setState function.
+ * @template H - The type of the StateHandler class.
+ * @param handlerClass - The constructor of the StateHandler class.
+ * @returns The instance of the StateHandler class.
+ */
 export function getHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>)>( handlerClass : new ( s?:T ) => H ) : H {
   if ( storage.has( handlerClass.name ) )
     return storage.get( handlerClass.name )!.handler as H;

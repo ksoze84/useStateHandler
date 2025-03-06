@@ -7,6 +7,7 @@ import { StateHandler, StateHandlerState } from "./StateHandler";
  * Unmounting components will not necessarily affect the instance nor its state.
  *
  * @template T - The type of the state.
+ * @template S - The type of the setState.
  * @template H - The type of the handler class, which extends `StateHandler<T>`
  * 
  * @param handlerClass - The class of the handler to be used for managing state.
@@ -23,6 +24,7 @@ declare function useStateHandler<T, S, H extends (StateHandler<T, S> | StateHand
  * Unmounting components will not necessarily affect the instance nor its state.
  *
  * @template T - The type of the state.
+ * @template S - The type of the setState.
  * @template H - The type of the handler class, which extends `StateHandler<T>`
  * 
  * @param handlerClass - The class of the handler to be used for managing state.

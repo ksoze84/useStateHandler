@@ -25,7 +25,7 @@ SOFTWARE.
 
 import React, { useEffect } from "react";
 import { StateHandler, StateHandlerState } from "./StateHandler";
-import { initHandler, mountLogic } from "./common";
+import { initHandler, mountLogic } from "./storage";
 
 function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value : J | (() => J)) : Readonly<[T, H]>
 function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value? : J | (() => J)) : Readonly<[ H extends StateHandlerState<T, S> ? T : T | undefined, H]>
@@ -38,6 +38,7 @@ function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T
  * Unmounting components will not necessarily affect the instance nor its state.
  *
  * @template T - The type of the state.
+ * @template S - The type of the setState.
  * @template H - The type of the handler class, which extends `StateHandler<T>`
  * 
  * @param handlerClass - The class of the handler to be used for managing state.
@@ -47,11 +48,11 @@ function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T
  */
 function useStateHandler<T, S, H extends (StateHandler<T, S>|StateHandlerState<T, S>), J extends T>( handlerClass : new ( s?:T ) => H, initial_value: J | (() => J)  )  : Readonly<[T | undefined, H]>  {
   const handler                     = initHandler<T, S, H>( handlerClass, initial_value );
-  const [state, setState]           = React.useState<T>( handler.state as T );    
+  const [, setState]           = React.useState<T>( handler.state as T );    
   
   useEffect( () => mountLogic( setState, handlerClass ), [] );
 
-  return [ state, handler ];
+  return [ handler.state, handler ];
 }
 
 export { useStateHandler };

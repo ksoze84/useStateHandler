@@ -5,27 +5,138 @@ Simple class based hook and state manager for React.
 KeyPoints: 
 * Keep the React paradigm. If you are familiar with class components, you will be familiar with this as well.
 * Work with classes.
-* Persist the state & handler instance : 
-  * Maintain a unique instance of the handler class on memory accross your application. 
-  * Share the state and the methods to update it between components.
-  * Two ways to avoid unnecessary re-renders on related components: getHandler() and usePartialState()
-* Or don't persist anything using [the standalone hook](#usehandler-the-standalone-hook).
 * You write the class, the hook manages the rest.
 * Heavy functions are not instantiated in every render. Minimize overhead by avoiding useCallback, useReducer, useMemo, and dependency arrays.
 * Helps to separate logic from render.
+* Basic standalone hook that doesn't store nor share its state nor handler instance: useHandler().
+* Or use the hooks to store and share the state & handler instance: useStateHandler. 
+  * Maintain a unique instance of the handler class on memory across your application. 
+  * Share the state and actions to update it between components.
+  * Two ways to avoid unnecessary re-renders on related components: getHandler() and usePartialState() hook.
 * Minimal and simple code. Small footprint and low impact in React's cycles. ( < 5kB minified ).
 
 This readme [looks better in gitHub](https://github.com/ksoze84/useStateHandler?tab=readme-ov-file#state-handler)
 
-## Basic Example
+## Basic example
 
 ```tsx
+class CountHandler extends StateHandler {
+  add      = () => this.setState( s => s + 1 );
+  subtract = () => this.setState( s => s - 1 );
+}
 
+function Counter() {
+  const [count, {add, subtract}] = useHandler(CountHandler, 0);
+
+  return (
+    <div>
+      <span>{count}</span>
+      <button onClick={add}>+</button>
+      <button onClick={subtract}>-</button>
+    </div>
+  );
+}
+```
+
+## Table of contents
+
+
+- [Basic example](#basic-example)
+- [Table of contents](#table-of-contents)
+- [Installation](#installation)
+- [How to use](#how-to-use)
+- [Rules](#rules)
+- [The no-store standalone hook : useHandler](#the-no-store-standalone-hook--usehandler)
+- [Storing and sharing : useStateHandler, usePartialHandler and getHandler](#storing-and-sharing--usestatehandler-usepartialhandler-and-gethandler)
+  - [useStateHandler](#usestatehandler)
+  - [Get the instance with getHandler()](#get-the-instance-with-gethandler)
+  - [usePartialHandler to update only when a determined subset of state properties changes](#usepartialhandler-to-update-only-when-a-determined-subset-of-state-properties-changes)
+  - [You can also use selectors \[with derived data\] or a compare function with usePartialState](#you-can-also-use-selectors-with-derived-data-or-a-compare-function-with-usepartialstate)
+- [The State Handler Class](#the-state-handler-class)
+  - [State initialization](#state-initialization)
+  - [instanceCreated() function](#instancecreated-function)
+  - [Handler Configuration](#handler-configuration)
+    - [Merging the state](#merging-the-state)
+  - [Reutilizing classes](#reutilizing-classes)
+  - [Extendibility and Inheritance](#extendibility-and-inheritance)
+  - [Your own setState function](#your-own-setstate-function)
+    - [Example with immer:](#example-with-immer)
+    - [Or may be you just want to change the setState() accessibility modifier](#or-may-be-you-just-want-to-change-the-setstate-accessibility-modifier)
+  - [Destroying the instance](#destroying-the-instance)
+  - [Constructor](#constructor)
+
+
+## Installation
+
+```
+npm install use-state-handler --save
+```
+
+## How to use
+
+1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all state update methods you want to this class.
+2. Use one of the hooks like useHandler( C_Handler, initial_value ). This hook returns [ state, C_Handler ]
+3. enjoy!
+
+## Rules
+
+* Never set Handler.state directly; it is read only!
+* You may save another data in the class, but beware of component state updates signaling and mounting logics if this data mutates over time.
+* Do not manipulate state directly in the constructor.
+* For storing/sharing hooks, the class name is used as key. Never use the same name for different state handler classes even if they are declared in different scopes.
+
+## The no-store standalone hook : useHandler
+
+This is a simple, classic-behavior custom hook that:
+* Creates an instance using the class; instance and state is not stored/shared.
+* **This hook does not work alongside usePartialHandler, getHandler nor useStateHandler, because these store and share the instance and state.**
+* More performant than these other hooks.
+* But have the same advantages:
+  * Work with classes.
+  * Merge state option.
+  * Your own setState ( _setState() wrapper ).
+  * instanceCreated and instanceDeleted optional methods (in this case are equivalent to mount/unmount the component).
+
+```tsx
+import { StateHandler, useHandler } from "use-state-handler";
+
+class CountHandler extends StateHandler<number> {
+  state = 0;
+  public add      = () => this.setState( s => s + 1 );
+  public subtract = () => this.setState( s => s - 1 );
+  public reset    = () => this.setState( 0 );
+}
+
+function Counter() {
+  const [count, {add, subtract}] = useHandler(CountHandler);
+
+  return (
+    <div>
+      <span>{count}</span>
+      <button onClick={add}>+</button>
+      <button onClick={subtract}>-</button>
+    </div>
+  );
+}
+```
+
+## Storing and sharing : useStateHandler, usePartialHandler and getHandler
+
+useStateHandler and usePartialHandler hooks, alongside getHandler utility method, create, use, store, and share a unique instance of the handler class on memory across your application, at global scope. 
+These can update the state between components; getHandler is not a hook, so never trigger a re-render when is used in a component, but can be used to update the state, therefore other components; and with usePartialHandler hook you can define when a component re-renders.  
+
+To bind these hooks/components together, use the same state handler class.
+
+
+### useStateHandler
+
+This hook is equal to useHanlder, but store, or use an already stored, instance of the handler and its state.
+
+```tsx
 import { StateHandler, useStateHandler } from "use-state-handler";
 
 class CountHandler extends StateHandler<number> {
   state = 0;
-
   public add      = () => this.setState( s => s + 1 );
   public subtract = () => this.setState( s => s - 1 );
   public reset    = () => this.setState( 0 );
@@ -42,114 +153,15 @@ function Counter() {
     </div>
   );
 }
-
-
 ```
 
-## Table of Contents
-
-
-- [Basic Example](#basic-example)
-- [Table of Contents](#table-of-contents)
-- [Installation](#installation)
-- [How to use](#how-to-use)
-- [Rules](#rules)
-- [State initialization](#state-initialization)
-- [instanceCreated() function](#instancecreated-function)
-- [Get the instance with getHandler()](#get-the-instance-with-gethandler)
-- [Handler Configuration](#handler-configuration)
-  - [Merging the state](#merging-the-state)
-- [usePartialHandler to update only when a determined subset of state properties changes](#usepartialhandler-to-update-only-when-a-determined-subset-of-state-properties-changes)
-  - [You can also use selectors \[with derived data\] or a compare function with usePartialState](#you-can-also-use-selectors-with-derived-data-or-a-compare-function-with-usepartialstate)
-- [useHandler: the standalone hook](#usehandler-the-standalone-hook)
-- [Working with Classes](#working-with-classes)
-  - [Reutilizing classes](#reutilizing-classes)
-  - [Extendibility and Inheritance](#extendibility-and-inheritance)
-- [Your own setState function](#your-own-setstate-function)
-  - [Example with immer:](#example-with-immer)
-  - [Or may be you just want to change the setState() accessibility modifier](#or-may-be-you-just-want-to-change-the-setstate-accessibility-modifier)
-- [Destroying the instance](#destroying-the-instance)
-- [Constructor](#constructor)
-
-
-## Installation
-
-```
-npm install use-state-handler --save
-```
-
-## How to use
-
-
-1. Create a handler class C_Handler that extends StateHandler < StateType >. Add all state update methods you want to this class.
-1. Use the hook useStateHandler( C_Handler, initial_value ). This hook returns [ state, C_Handler ]
-1. enjoy!
-
-## Rules
-
-* Never set Handler.state directly; it is read only!
-* You may save another data in the class, but beware of component state updates signaling and mounting logics if this data mutates over time.
-* Do not manipulate state directly in the constructor.
-* The class name is the key for this software to work as expected. Never use the same name for different state handler classes even if they are declared in different scopes.
-
-## State initialization
-
-You can set an initial state in the class definition or pass an initial value on the hook. You should not initialize the state with both methods, but if you do, the initial value on the hook has priority.
-
-Prefer setting the state in the class definition for easier readability.
-
-```tsx
-class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
-  state = {
-    chairs: 0,
-    tables : 0,
-    rooms : 10
-  }
-
-  ...
-}
-
-// OR 
-
-function Counter() {
-  const [counters] = useStateHandler(CountHandler, { chairs: 0, tables : 0, rooms : 10 });
-
- ...
-}
-
-```
-
-**Code you wrote in instanceCreated() method will update the initial state.**
-
-
-## instanceCreated() function
-
-Optional handler method that is called only once when an instance is created. If exists in the instance, this method is called by the useStateHandler or usePartialHandler use hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
-
-This method has NOT the same behavior as mount callback of a component in React. The only way this method is called again by the hook is by destroying the instance first with destroyInstance().
-
-```tsx
-class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
-  state = {
-    chairs: 0,
-    tables : 0,
-    rooms : 0
-  }
-
-  instanceCreated = () => {
-    fetch('https://myapi.com/counters').then( r => r.json() ).then( r => this.setState(r) );
-  }
-}
-```
-
-## Get the instance with getHandler()
+### Get the instance with getHandler()
 
 Get the instance of your Handler using getHandler() utility method. This method is not a hook, so it never triggers a new render. 
 
 Yuo can use this method mainly for two things:
 * To use handler actions without triggering re-renders in "control-only" components
 * To use the handler outside react
-
 
 
 ```tsx
@@ -192,71 +204,13 @@ export function App() {
 }
 ```
 
+### usePartialHandler to update only when a determined subset of state properties changes
 
-## Handler Configuration
-
-You may configure the handler by setting the optional property _handlerConfig in your handler. It has two boolean options:
-* merge : The state is overwritten by default using setState. Change this to true to merge.
-* destroyOnUnmount : Tries to delete the instance in each unmount of each component. Is successfully deleted if there are no active listeners (other components using it).
-
-```tsx
-//default:
- _handlerConfig = { merge : false, destroyOnUnmount : false }
-```
-
-### Merging the state
-
-Overwrite the state is the default mode on hanlder.setState, but you can configure the handler to merge. This can be usefull for refactor old class components.
-
-```tsx
-class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
-  state = {
-    chairs: 0,
-    tables : 0,
-    rooms : 10
-  }
-
-  _handlerConfig = { merge : true }
-
-  addChairs = () => this.setState( c => ( { chairs: c.chairs + 1 }) );
-  subtractChairs = () => this.setState( c => ({chairs : c.chairs - 1}) );
-
-  addTables = () => this.setState( t => ({ tables: t.tables + 1 }) );
-  subtractTables = () => this.setState( t => ({tables: t.tables - 1}) );
-
-  resetAll = () => this.setState( { chairs: 0, tables : 0 } );
-}
-
-function Chairs() {
-  const [{chairs},{addChairs, subtractChairs}] = useStateHandler(CountHandler);
-
-  return <>
-    <span>Chairs: {chairs}</span>
-    <button onClick={addChairs}>+</button>
-    <button onClick={subtractChairs}>-</button>
-  </> 
-}
-
-function Tables() {
-  const [{tables},{addTables, subtractTables}] = useStateHandler(CountHandler);
-
-  return <>
-    <span>Tables: {tables}</span>
-    <button onClick={addTables}>+</button>
-    <button onClick={subtractTables}>-</button>
-  </>
-}
-```
-**Note that the useStateHandler hook will trigger re-render for any part of the state changed. In the example above, Tables component will re-render if the chairs value is changed. This behavior can be optimized with usePartialHandler hook.**  
-**Merging mode is only for non-undefined objects, and there is no check of any kind for this before doing it, so its on you to guarantee an initial and always state object.**
-
-## usePartialHandler to update only when a determined subset of state properties changes
-
-When a non-undefined object with many properties is used as state, the useStateHandler hook will trigger re-render for any part of the state changed, even if the component is using only one of the properties. This can be optimized using the provided usePartialHandler hook, which performs a shallow comparison. It is more suitable if the merge state option is set to true.
+When a non-undefined object with many properties is used as state, the useStateHandler hook will trigger re-render for any part of the state changed, even if the component is using only one of the properties. This can be optimized using the provided usePartialHandler hook, which performs a shallow comparison. 
 
 The usage of this hook is identical to useStateHandler, but the second argument must be a non-empty array of strings with the state property names, a selector function or a comparator function. An initial state can be defined as a third argument. 
 
-**Use only if you have performance problems; this hook avoids some unnecessary re-renders but introduces a dependency array of comparisons. Always prefer useStateHandler first.**
+**Use only if you have performance problems; this hook avoids some unnecessary re-renders but introduces a dependency array of comparisons. Always prefer useStateHandler and getHandler first.**
 
 Updating the previous example:
 
@@ -306,7 +260,8 @@ this example has the same behaviour of previous example:
 ...
 
 function Chairs() {
-  const [{chairs},{addChairs, subtractChairs}] = usePartialHandler(CountHandler, (prevState, nextState) => prevState.chairs !== nextState.chairs ); // this component re-renders only if function returns true
+  // This component re-renders only if the compare function(prevState, nextState) returns true
+  const [{chairs},{addChairs,subtractChairs}] = usePartialHandler(CountHandler, (p, n) => p.chairs !== n.chairs ); 
 
   return <>
     <span>Chairs: {chairs}</span>
@@ -316,8 +271,9 @@ function Chairs() {
 }
 
 function Tables() {
-  //here tables is a string
-  const [tables, {addTables, subtractTables}] = usePartialHandler(CountHandler, ( s ) => s.tables.toString() ); // this component re-renders only if it's tables.toString() changes
+  // This component re-renders only if tables.toString() changes
+  // Here tables is a string
+  const [tables, {addTables, subtractTables}] = usePartialHandler(CountHandler, ( s ) => s.tables.toString() ); 
 
   return <>
     <span>Tables: {tables}</span>
@@ -326,45 +282,118 @@ function Tables() {
   </>
 }
 ```
+## The State Handler Class
 
-## useHandler: the standalone hook
+### State initialization
 
-This is a simple, classic-behavior hook that:
-* Creates an instance of the handler for each component using the class; instance does not persist.
-* Isolates the instance; the state is not shared with other components using the same class nor the same remounted component.
-* ( Yes, like a normal hook does, this is just a simple custom hook ) 
-* Uses the same classes you already have.
-* **This hook does not work alongside usePartialHandler, getHandler nor useStateHandler, because these persist the instance.**
-* More performant than these other hooks.
-* Have the advantages of:
-  * Work with classes.
-  * Merge state option.
-  * Your own setState ( _setState() wrapper ).
-  * instanceCreated and instanceDeleted optional methods (in this case are equivalent to mount/unmount the component).
+You can set an initial state in the class definition or pass an initial value on the hook. You should not initialize the state with both methods, but if you do, the initial value on the hook has priority.
+
+Prefer setting the state in the class definition for easier readability.
 
 ```tsx
-import { StateHandler, useHandler } from "use-state-handler";
+class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
+  state = {
+    chairs: 0,
+    tables : 0,
+    rooms : 10
+  }
 
-class CountHandler extends StateHandler<number> {
-  public add      = () => this.setState( s => s + 1 );
-  public subtract = () => this.setState( s => s - 1 );
-  public reset    = () => this.setState( 0 );
+  ...
 }
 
-function Counter() {
-  const [count, {add, subtract}] = useHandler(CountHandler, 0);
+// OR 
 
-  return (
-    <div>
-      <span>{count}</span>
-      <button onClick={add}>+</button>
-      <button onClick={subtract}>-</button>
-    </div>
-  );
+function Counter() {
+  const [counters] = useStateHandler(CountHandler, { chairs: 0, tables : 0, rooms : 10 });
+
+ ...
+}
+
+```
+
+**Code you wrote in instanceCreated() method will update the initial state.**
+
+
+### instanceCreated() function
+
+Optional handler method that is called only once when an instance is created. If exists in the instance, this method is called by the useStateHandler or usePartialHandler use hook the first time a component in the application using the hook is effectively mounted and when the instance is "newly created".  
+
+This method has NOT the same behavior as mount callback of a component in React. The only way this method is called again by the hook is by destroying the instance first with destroyInstance().
+
+```tsx
+class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
+  state = {
+    chairs: 0,
+    tables : 0,
+    rooms : 0
+  }
+
+  instanceCreated = () => {
+    fetch('https://myapi.com/counters').then( r => r.json() ).then( r => this.setState(r) );
+  }
 }
 ```
 
-## Working with Classes
+
+
+### Handler Configuration
+
+You may configure the handler by setting the optional property _handlerConfig in your handler. It has two boolean options:
+* merge : The state is overwritten by default using setState. Change this to true to merge.
+* destroyOnUnmount : Tries to delete the instance in each unmount of each component. Is successfully deleted if there are no active listeners (other components using it).
+
+```tsx
+//default:
+ _handlerConfig = { merge : false, destroyOnUnmount : false }
+```
+
+#### Merging the state
+
+Overwrite the state is the default mode on hanlder.setState, but you can configure the handler to merge. This can be usefull for refactor old class components.
+
+```tsx
+class CountHandler extends StateHandler<{chairs:number, tables:number, rooms:number}> {
+  state = {
+    chairs: 0,
+    tables : 0,
+    rooms : 10
+  }
+
+  _handlerConfig = { merge : true }
+
+  addChairs = () => this.setState( c => ( { chairs: c.chairs + 1 }) );
+  subtractChairs = () => this.setState( c => ({chairs : c.chairs - 1}) );
+
+  addTables = () => this.setState( t => ({ tables: t.tables + 1 }) );
+  subtractTables = () => this.setState( t => ({tables: t.tables - 1}) );
+
+  resetAll = () => this.setState( { chairs: 0, tables : 0 } );
+}
+
+function Chairs() {
+  const [{chairs},{addChairs, subtractChairs}] = useStateHandler(CountHandler);
+
+  return <>
+    <span>Chairs: {chairs}</span>
+    <button onClick={addChairs}>+</button>
+    <button onClick={subtractChairs}>-</button>
+  </> 
+}
+
+function Tables() {
+  const [{tables},{addTables, subtractTables}] = useStateHandler(CountHandler);
+
+  return <>
+    <span>Tables: {tables}</span>
+    <button onClick={addTables}>+</button>
+    <button onClick={subtractTables}>-</button>
+  </>
+}
+```
+**Note that the useStateHandler hook will trigger re-render for any part of the state changed. In the example above, Tables component will re-render if the chairs value is changed. This behavior can be optimized with usePartialHandler hook.**  
+**Merging mode is only for non-undefined objects, and there is no check of any kind for this before doing it, so its on you to guarantee an initial and always state object.**
+
+
 
 ### Reutilizing classes
 
@@ -407,13 +436,13 @@ export abstract class MyGenericApiHandler extends StateHandler<ApiData>{
   }
 
   public modify = ( item : Record<string, any>, changes : Record<string, any> ) => 
-    this.setState( { data : this.state.data?.map( i => i === item ? { ...i, ...changes } : i ) } )
+    this.setState( s => ({ data : s.data?.map( i => i === item ? { ...i, ...changes } : i ) }) )
 
   public delete = ( item : Record<string, any> ) => 
-    this.setState( { data : this.state.data?.filter( i => i !== item ) } )
+    this.setState( s => ({ data : s.data?.filter( i => i !== item ) )} )
 
   public append = ( item : Record<string, any> ) =>
-    this.setState( { data : this.state.data?.concat( item ) } )
+    this.setState( s => ({ data : s.data?.concat( item ) }) )
 
   public save = ( params? : Record<string, any> ) => {
     this.setState({isLoading: true});
@@ -443,11 +472,11 @@ export function MyComponent() {
 ```
 
 
-## Your own setState function
+### Your own setState function
 
 setState() is just a wrapper for the actual _setState() function. You can directly modify it in Javascript; in Typescript, you need to define the setState type as a second generic type of the handler class.
 
-### Example with immer:
+#### Example with immer:
 ```tsx
 import { produce, WritableDraft } from "immer";
 
@@ -485,12 +514,12 @@ function Tables() {
 ```
 
 
-### Or may be you just want to change the setState() accessibility modifier
+#### Or may be you just want to change the setState() accessibility modifier
 ```tsx
 public setState = this._setState
 ```
 
-## Destroying the instance
+### Destroying the instance
 
 You may destroy the instance when needed using the **destroyInstance()** method. This method must be called **on the unmount callback** of the component using it.  
 This first checks if there are active state hook listeners active. If there isn't, the instance reference is deleted, and the **instanceDeleted()** method is called if exists.
@@ -513,7 +542,7 @@ export function App() {
 }
 ```
 
-## Constructor
+### Constructor
 
 You may define a constructor in your class. But is not necessary
 

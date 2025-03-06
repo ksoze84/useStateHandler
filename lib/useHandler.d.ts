@@ -6,6 +6,7 @@ import { StateHandler, StateHandlerState } from "./StateHandler";
  * Do not modify the handler state directly. Use the handler setState method instead.  
  *
  * @template T - The type of the state.
+ * @template S - The type of the setState.
  * @template H - The type of the handler class, which extends `StateHandler<T>`
  * 
  * @param handlerClass - The class of the handler to be used for managing state.
@@ -21,6 +22,7 @@ declare function useHandler<T, S, H extends (StateHandler<T, S> | StateHandlerSt
  * Do not modify the handler state directly. Use the handler setState method instead.  
  *
  * @template T - The type of the state.
+ * @template S - The type of the setState.
  * @template H - The type of the handler class, which extends `StateHandler<T>`
  * 
  * @param handlerClass - The class of the handler to be used for managing state.

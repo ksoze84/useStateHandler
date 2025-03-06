@@ -79,8 +79,11 @@ export abstract class StateHandler<T, S = SetStateType<T>> {
   protected readonly _setState : SetStateType<T> = (value: T | Partial<T> | ((prevState: T) => T | Partial<T>)) => {
     const newState = value instanceof Function ? value(this.state as T) : value;
     this.state = (this._handlerConfig.merge ? { ...this.state, ...newState } : newState) as T;
+    this.__handlerDispatcher(this.state);
   };
 
+
+  private readonly __handlerDispatcher : (s? : T) => void = () => {}
 
 
 
@@ -96,9 +99,7 @@ export abstract class StateHandler<T, S = SetStateType<T>> {
    * Use this method to delete the instance **on the unmount callback** of the component using it.  
    * Logs a warn if there are active listeners and the instance is not deleted.
    */
-  public destroyInstance = () => {
-      this.instanceDeleted?.(); 
-  };
+  public destroyInstance = () => {};
 
   /**
    * Constructs a new instance of the StateHandler class.  
