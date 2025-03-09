@@ -1,6 +1,6 @@
 {
   "name": "use-state-handler",
-  "version": "5.2.0",
+  "version": "5.2.1",
   "description": "Object based state handler",
   "main": "lib/main.js",
   "module": "lib/main.esm.js",

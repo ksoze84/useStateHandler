@@ -1,3 +1,6 @@
+
+# THIS PACKAGE HAS BEEN REPLACED BY ["SoKore"](https://github.com/ksoze84/sokore).
+
 # State Handler
 
 Simple class based hook and state manager for React.  
